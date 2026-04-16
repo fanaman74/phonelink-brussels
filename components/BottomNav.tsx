@@ -6,6 +6,15 @@ import { useTranslations } from "next-intl";
 
 const NAV_ITEMS = [
   {
+    key: "accueil",
+    path: "",
+    icon: (active: boolean) => (
+      <svg viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+      </svg>
+    ),
+  },
+  {
     key: "demandes",
     path: "demandes",
     icon: (active: boolean) => (
@@ -68,11 +77,11 @@ export default function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-area-pb">
       <div className="max-w-lg mx-auto flex">
         {NAV_ITEMS.map(({ key, path, icon }) => {
-          const active = currentSection === path;
+          const active = path === "" ? currentSection === "" : currentSection === path;
           return (
             <Link
               key={key}
-              href={`/${locale}/${path}`}
+              href={path === "" ? `/${locale}` : `/${locale}/${path}`}
               className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 min-h-[60px] transition-colors relative ${
                 active ? "text-brand" : "text-gray-400 hover:text-gray-600"
               }`}

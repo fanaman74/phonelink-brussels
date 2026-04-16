@@ -1,5 +1,6 @@
 {
   "nav": {
+    "accueil": "Home",
     "demandes": "Requests",
     "stock": "My stock",
     "chercher": "Search",

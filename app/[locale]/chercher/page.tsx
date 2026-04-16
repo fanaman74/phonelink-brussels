@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, useTransition } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { DEVICES, type Device } from "@/lib/devices";
+import { getDeviceImageUrl } from "@/lib/deviceImage";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 // ---------------------------------------------------------------------------
@@ -96,22 +97,32 @@ function getModelGroups(query: string, brandFilter: string): ModelGroup[] {
 function PhoneSilhouette({ brand }: { brand: string }) {
   const color = BRAND_ICON_COLOR[brand] ?? "text-gray-300";
   return (
-    <svg
-      viewBox="0 0 48 84"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={`w-12 h-auto ${color}`}
-      aria-hidden="true"
-    >
-      {/* Phone body */}
+    <svg viewBox="0 0 48 84" fill="none" className={`w-8 h-auto ${color}`} aria-hidden="true">
       <rect x="2" y="2" width="44" height="80" rx="8" stroke="currentColor" strokeWidth="3" />
-      {/* Camera notch */}
       <rect x="14" y="6.5" width="20" height="4" rx="2" fill="currentColor" opacity="0.5" />
-      {/* Screen */}
       <rect x="7" y="15" width="34" height="52" rx="3" fill="currentColor" opacity="0.08" />
-      {/* Home indicator */}
       <rect x="18" y="73" width="12" height="3" rx="1.5" fill="currentColor" opacity="0.5" />
     </svg>
+  );
+}
+
+function DeviceImage({ brand, model }: { brand: string; model: string }) {
+  const [failed, setFailed] = useState(false);
+  const src = getDeviceImageUrl(brand, model);
+
+  if (failed) {
+    return <PhoneSilhouette brand={brand} />;
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={`${brand} ${model}`}
+      onError={() => setFailed(true)}
+      className="w-full h-full object-contain"
+      loading="lazy"
+    />
   );
 }
 
@@ -128,52 +139,33 @@ function DeviceCard({
   return (
     <button
       onClick={() => onSelect(group)}
-      className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-card hover:shadow-card-md hover:border-gray-200 active:scale-[0.97] transition-all duration-150 text-left w-full"
+      className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-card hover:shadow-card-md hover:border-gray-200 active:scale-[0.96] transition-all duration-150 text-left w-full"
     >
       {/* Image area */}
       <div
-        className={`relative flex items-center justify-center bg-gradient-to-b ${bg} pt-5 pb-4`}
-        style={{ minHeight: "120px" }}
+        className={`relative flex items-center justify-center bg-gradient-to-b ${bg} overflow-hidden`}
+        style={{ height: "90px" }}
       >
-        <PhoneSilhouette brand={group.brand} />
-
-        {/* Variants badge */}
-        {group.variants.length > 1 && (
-          <span className="absolute top-2 right-2 text-[10px] font-bold text-gray-400 bg-white/70 backdrop-blur-sm px-1.5 py-0.5 rounded-full leading-tight">
-            {group.variants.length} Go
-          </span>
-        )}
+        <DeviceImage brand={group.brand} model={group.model} />
       </div>
 
       {/* Info area */}
-      <div className="flex-1 flex flex-col px-3 py-3 gap-0.5">
-        <p className={`text-[11px] font-semibold uppercase tracking-wider leading-tight ${labelColor}`}>
+      <div className="flex flex-col px-2 py-2 gap-0.5">
+        <p className={`text-[9px] font-bold uppercase tracking-wider leading-tight truncate ${labelColor}`}>
           {group.brand}
         </p>
-        <p className="text-[13px] font-bold text-gray-900 leading-tight line-clamp-2">
+        <p className="text-[11px] font-bold text-gray-900 leading-tight line-clamp-2">
           {group.model}
         </p>
         {group.variants.length === 1 && group.variants[0].storage_gb && (
-          <p className="text-[11px] text-gray-400 mt-0.5">
-            {group.variants[0].storage_gb} Go
+          <p className="text-[10px] text-gray-400 leading-tight">
+            {group.variants[0].storage_gb}Go
           </p>
         )}
         {group.variants.length > 1 && (
-          <div className="flex flex-wrap gap-1 mt-1.5">
-            {group.variants.slice(0, 3).map((v) => (
-              <span
-                key={v.storage_gb}
-                className="text-[10px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md leading-tight"
-              >
-                {v.storage_gb}Go
-              </span>
-            ))}
-            {group.variants.length > 3 && (
-              <span className="text-[10px] font-medium text-gray-400 leading-tight mt-0.5">
-                +{group.variants.length - 3}
-              </span>
-            )}
-          </div>
+          <p className="text-[10px] text-gray-400 leading-tight">
+            {group.variants.length} options
+          </p>
         )}
       </div>
     </button>
@@ -196,24 +188,17 @@ function StorageSheet({
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="bg-white rounded-t-[28px] w-full p-6 shadow-xl">
         <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
 
-        {/* Device preview */}
-        <div className={`flex items-center gap-3 mb-5`}>
-          <div
-            className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-b ${bg}`}
-          >
-            <PhoneSilhouette brand={group.brand} />
+        <div className="flex items-center gap-3 mb-5">
+          <div className={`w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-b ${bg} overflow-hidden`}>
+            <DeviceImage brand={group.brand} model={group.model} />
           </div>
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              {group.brand}
-            </p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{group.brand}</p>
             <p className="text-base font-bold text-gray-900">{group.model}</p>
           </div>
         </div>
@@ -273,12 +258,8 @@ export default function CherchePage() {
   const [sheetGroup, setSheetGroup] = useState<ModelGroup | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const groups = useMemo(
-    () => getModelGroups(query, brandFilter),
-    [query, brandFilter]
-  );
+  const groups = useMemo(() => getModelGroups(query, brandFilter), [query, brandFilter]);
 
-  // Group by brand for section headers (only when no search query and no brand filter)
   const showSections = !query.trim() && !brandFilter;
   const brandSections = useMemo(() => {
     if (!showSections) return null;
@@ -292,32 +273,19 @@ export default function CherchePage() {
 
   const resolveDeviceId = useCallback(async (device: Device): Promise<string | null> => {
     const supabase = getSupabaseBrowserClient();
-    const q = supabase
-      .from("devices")
-      .select("id")
-      .eq("brand", device.brand)
-      .eq("model", device.model);
-
-    const finalQ =
-      device.storage_gb != null
-        ? q.eq("storage_gb", device.storage_gb)
-        : q.is("storage_gb", null);
-
+    const q = supabase.from("devices").select("id").eq("brand", device.brand).eq("model", device.model);
+    const finalQ = device.storage_gb != null ? q.eq("storage_gb", device.storage_gb) : q.is("storage_gb", null);
     const { data } = await finalQ.single() as { data: { id: string } | null; error: unknown };
     return data?.id ?? null;
   }, []);
 
   const handleCardSelect = useCallback((group: ModelGroup) => {
     if (group.variants.length === 1) {
-      // Single variant — resolve and navigate
       setSheetGroup(group);
       startTransition(async () => {
         const id = await resolveDeviceId(group.variants[0]);
-        if (id) {
-          router.push(`/${locale}/chercher/${id}`);
-        } else {
-          setSheetGroup(null);
-        }
+        if (id) router.push(`/${locale}/chercher/${id}`);
+        else setSheetGroup(null);
       });
     } else {
       setSheetGroup(group);
@@ -327,11 +295,8 @@ export default function CherchePage() {
   const handleVariantPick = useCallback((device: Device) => {
     startTransition(async () => {
       const id = await resolveDeviceId(device);
-      if (id) {
-        router.push(`/${locale}/chercher/${id}`);
-      } else {
-        setSheetGroup(null);
-      }
+      if (id) router.push(`/${locale}/chercher/${id}`);
+      else setSheetGroup(null);
     });
   }, [resolveDeviceId, locale, router]);
 
@@ -339,34 +304,21 @@ export default function CherchePage() {
     <>
       {/* ── Sticky header ─────────────────────────────────────────────── */}
       <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-        {/* Title + search */}
         <div className="px-4 pt-4 pb-2.5">
           <h1 className="text-lg font-bold text-brand-500 mb-2.5">{t("title")}</h1>
           <div className="relative">
-            <svg
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.8}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-            >
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.8} className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none">
               <path strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
             </svg>
             <input
               type="text"
               value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                if (e.target.value) setBrandFilter("");
-              }}
+              onChange={(e) => { setQuery(e.target.value); if (e.target.value) setBrandFilter(""); }}
               placeholder={t("placeholder")}
               className="w-full rounded-xl border border-gray-200 pl-10 pr-9 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 bg-gray-50 focus:bg-white transition-colors"
             />
             {query && (
-              <button
-                onClick={() => setQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
+              <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                 <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                   <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
                 </svg>
@@ -378,26 +330,11 @@ export default function CherchePage() {
         {/* Brand filter chips */}
         {!query && (
           <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-none">
-            <button
-              onClick={() => setBrandFilter("")}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                !brandFilter
-                  ? "bg-brand-500 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
+            <button onClick={() => setBrandFilter("")} className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${!brandFilter ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
               Tous
             </button>
             {BRANDS.map((brand) => (
-              <button
-                key={brand}
-                onClick={() => setBrandFilter(b => b === brand ? "" : brand)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                  brandFilter === brand
-                    ? "bg-brand-500 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
+              <button key={brand} onClick={() => setBrandFilter(b => b === brand ? "" : brand)} className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${brandFilter === brand ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
                 {brand}
               </button>
             ))}
@@ -406,9 +343,8 @@ export default function CherchePage() {
       </div>
 
       {/* ── Body ──────────────────────────────────────────────────────── */}
-      <div className="px-4 py-4">
+      <div className="px-3 py-4">
         {groups.length === 0 ? (
-          /* Empty search state */
           <div className="flex flex-col items-center text-center py-16 space-y-3">
             <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
               <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -418,44 +354,29 @@ export default function CherchePage() {
             <p className="text-sm text-gray-500">{t("no_results")}</p>
           </div>
         ) : showSections && brandSections ? (
-          /* Sectioned by brand (default browse mode) */
           <div className="space-y-6">
             {Array.from(brandSections.entries()).map(([brand, brandGroups]) => (
               <div key={brand}>
-                <div className="flex items-center gap-2 mb-3">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                    {brand}
-                  </p>
-                  <span className="text-xs text-gray-300 font-medium">
-                    ({brandGroups.length})
-                  </span>
+                <div className="flex items-center gap-2 mb-2.5">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{brand}</p>
+                  <span className="text-xs text-gray-300 font-medium">({brandGroups.length})</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   {brandGroups.map((group) => (
-                    <DeviceCard
-                      key={`${group.brand}__${group.model}`}
-                      group={group}
-                      onSelect={handleCardSelect}
-                    />
+                    <DeviceCard key={`${group.brand}__${group.model}`} group={group} onSelect={handleCardSelect} />
                   ))}
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          /* Filtered grid (search or brand filter active) */
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             {groups.map((group) => (
-              <DeviceCard
-                key={`${group.brand}__${group.model}`}
-                group={group}
-                onSelect={handleCardSelect}
-              />
+              <DeviceCard key={`${group.brand}__${group.model}`} group={group} onSelect={handleCardSelect} />
             ))}
           </div>
         )}
 
-        {/* Results count when filtering */}
         {(query || brandFilter) && groups.length > 0 && (
           <p className="text-center text-xs text-gray-400 mt-4">
             {groups.length} modèle{groups.length > 1 ? "s" : ""}
@@ -465,24 +386,16 @@ export default function CherchePage() {
 
       {/* ── Storage picker sheet ───────────────────────────────────────── */}
       {sheetGroup && sheetGroup.variants.length > 1 && (
-        <StorageSheet
-          group={sheetGroup}
-          onClose={() => setSheetGroup(null)}
-          onPick={handleVariantPick}
-          loading={isPending}
-        />
+        <StorageSheet group={sheetGroup} onClose={() => setSheetGroup(null)} onPick={handleVariantPick} loading={isPending} />
       )}
 
-      {/* ── Loading overlay for single-variant navigation ─────────────── */}
+      {/* ── Loading overlay ────────────────────────────────────────────── */}
       {isPending && sheetGroup && sheetGroup.variants.length === 1 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-3">
-            <svg className="w-6 h-6 animate-spin text-brand-500" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <p className="text-sm text-gray-500">Chargement…</p>
-          </div>
+          <svg className="w-6 h-6 animate-spin text-brand-500" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
         </div>
       )}
     </>
