@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "demandes": "Aanvragen",
+    "stock": "Mijn stock",
+    "chercher": "Zoeken",
+    "carte": "Kaart",
+    "stats": "Stats"
+  },
+  "auth": {
+    "title": "PhoneLink Brussels",
+    "subtitle": "Verbind uw winkel met het netwerk",
+    "email_label": "E-mailadres",
+    "email_placeholder": "winkel@voorbeeld.com",
+    "send_otp": "Code verzenden",
+    "otp_label": "Verificatiecode",
+    "otp_placeholder": "123456",
+    "verify": "Inloggen",
+    "sending": "Verzenden…",
+    "verifying": "Verifiëren…",
+    "back": "Terug",
+    "otp_sent": "Code verzonden naar {contact}",
+    "invalid_email": "Ongeldig e-mailadres",
+    "invalid_otp": "Onjuiste of verlopen code"
+  },
+  "dashboard": {
+    "title": "Aanvragen",
+    "empty": "Geen openstaande aanvragen in uw netwerk",
+    "matched_banner": "Overeenkomst gevonden!",
+    "request_from": "Aanvraag van {shop}",
+    "expires_in": "Verloopt over {time}",
+    "expired": "Verlopen",
+    "respond": "Ik heb het",
+    "no_stock": "Niet op voorraad",
+    "price_optional": "Prijs (optioneel)",
+    "confirm_response": "Bevestigen",
+    "already_responded": "Al geantwoord",
+    "matched": "Gevonden bij {shop}",
+    "open": "Open",
+    "loading": "Laden…"
+  },
+  "inventory": {
+    "title": "Mijn stock",
+    "available": "Op voorraad",
+    "unavailable": "Niet beschikbaar",
+    "price_label": "Prijs (€)",
+    "price_placeholder": "bv. 299",
+    "save": "Opslaan",
+    "saved": "Opgeslagen",
+    "saving": "Opslaan…",
+    "filter_brand": "Merk",
+    "all_brands": "Alle",
+    "search_device": "Zoek een model…",
+    "empty": "Geen toestellen gevonden"
+  },
+  "search": {
+    "title": "Zoeken",
+    "placeholder": "bv. iPhone 15 Pro 256GB",
+    "no_results": "Geen toestel gevonden",
+    "check_stock": "Voorraad controleren",
+    "available_at": "Beschikbaar bij",
+    "price": "Prijs",
+    "request_blast": "Aanvraag sturen naar netwerk",
+    "request_sent": "Aanvraag verzonden!",
+    "request_note_placeholder": "Details (staat, kleur…)",
+    "confirm_request": "Aanvraag bevestigen",
+    "cancel": "Annuleren",
+    "rate_limit": "Maximum van 20 openstaande aanvragen bereikt"
+  },
+  "map": {
+    "title": "Kaart",
+    "legend_available": "Op voorraad",
+    "legend_partial": "Gedeeltelijke voorraad",
+    "legend_unavailable": "Niet op voorraad",
+    "shop_popup_phone": "Telefoon",
+    "shop_popup_commune": "Gemeente"
+  },
+  "stats": {
+    "title": "Statistieken",
+    "recovered_sales": "Herstelde verkopen",
+    "requests_sent": "Verzonden aanvragen",
+    "requests_received": "Ontvangen aanvragen",
+    "responses_given": "Gegeven antwoorden",
+    "match_rate": "Overeenkomstpercentage",
+    "this_week": "Deze week",
+    "all_time": "Totaal",
+    "confirm_sale": "Verkoop bevestigen",
+    "sale_confirmed": "Verkoop bevestigd!"
+  },
+  "invite": {
+    "title": "Netwerk vervoegen",
+    "invited_by": "Uitgenodigd door {name}",
+    "shop_name_label": "Winkelnaam",
+    "owner_name_label": "Uw naam",
+    "commune_label": "Gemeente",
+    "phone_label": "Winkeltelefoon",
+    "language_label": "Voorkeurstaal",
+    "join": "Vervoegen",
+    "joining": "Bezig…",
+    "success": "Welkom in het netwerk!",
+    "invalid_token": "Ongeldige of verlopen uitnodigingslink",
+    "phone_mismatch": "Telefoonnummer komt niet overeen met de uitnodiging"
+  },
+  "errors": {
+    "network": "Netwerkfout. Probeer opnieuw.",
+    "unknown": "Er is iets misgegaan",
+    "rate_limit": "Te veel aanvragen. Wacht even.",
+    "not_found": "Niet gevonden",
+    "forbidden": "Toegang geweigerd",
+    "duplicate": "Deze invoer bestaat al",
+    "timeout": "Verzoek verlopen. Probeer opnieuw.",
+    "request_expired": "Deze aanvraag is verlopen"
+  },
+  "common": {
+    "loading": "Laden…",
+    "error": "Fout",
+    "retry": "Opnieuw",
+    "close": "Sluiten",
+    "minutes": "{n} min",
+    "hours": "{n} u",
+    "now": "Zojuist"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "demandes": "Demandes",
+    "stock": "Mon stock",
+    "chercher": "Chercher",
+    "carte": "Carte",
+    "stats": "Stats"
+  },
+  "auth": {
+    "title": "PhoneLink Brussels",
+    "subtitle": "Connectez votre boutique au réseau",
+    "email_label": "Adresse e-mail",
+    "email_placeholder": "boutique@exemple.com",
+    "send_otp": "Recevoir le code",
+    "otp_label": "Code de vérification",
+    "otp_placeholder": "123456",
+    "verify": "Connexion",
+    "sending": "Envoi en cours…",
+    "verifying": "Vérification…",
+    "back": "Retour",
+    "otp_sent": "Code envoyé à {contact}",
+    "invalid_email": "Adresse e-mail invalide",
+    "invalid_otp": "Code incorrect ou expiré"
+  },
+  "dashboard": {
+    "title": "Demandes",
+    "empty": "Aucune demande ouverte dans votre réseau",
+    "matched_banner": "Correspondance trouvée !",
+    "request_from": "Demande de {shop}",
+    "expires_in": "Expire dans {time}",
+    "expired": "Expirée",
+    "respond": "Je l'ai",
+    "no_stock": "Je n'ai pas",
+    "price_optional": "Prix (optionnel)",
+    "confirm_response": "Confirmer",
+    "already_responded": "Déjà répondu",
+    "matched": "Trouvé chez {shop}",
+    "open": "Ouvert",
+    "loading": "Chargement…"
+  },
+  "inventory": {
+    "title": "Mon stock",
+    "available": "En stock",
+    "unavailable": "Indisponible",
+    "price_label": "Prix (€)",
+    "price_placeholder": "ex. 299",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "saving": "Sauvegarde…",
+    "filter_brand": "Marque",
+    "all_brands": "Toutes",
+    "search_device": "Chercher un modèle…",
+    "empty": "Aucun appareil trouvé"
+  },
+  "search": {
+    "title": "Chercher",
+    "placeholder": "ex. iPhone 15 Pro 256Go",
+    "no_results": "Aucun appareil trouvé",
+    "check_stock": "Vérifier le stock",
+    "available_at": "Disponible chez",
+    "price": "Prix",
+    "request_blast": "Envoyer une demande au réseau",
+    "request_sent": "Demande envoyée !",
+    "request_note_placeholder": "Précisions (état, couleur…)",
+    "confirm_request": "Confirmer la demande",
+    "cancel": "Annuler",
+    "rate_limit": "Maximum 20 demandes ouvertes atteint"
+  },
+  "map": {
+    "title": "Carte",
+    "legend_available": "En stock",
+    "legend_partial": "Stock partiel",
+    "legend_unavailable": "Hors stock",
+    "shop_popup_phone": "Téléphone",
+    "shop_popup_commune": "Commune"
+  },
+  "stats": {
+    "title": "Statistiques",
+    "recovered_sales": "Ventes récupérées",
+    "requests_sent": "Demandes envoyées",
+    "requests_received": "Demandes reçues",
+    "responses_given": "Réponses données",
+    "match_rate": "Taux de correspondance",
+    "this_week": "Cette semaine",
+    "all_time": "Total",
+    "confirm_sale": "Confirmer la vente",
+    "sale_confirmed": "Vente confirmée !"
+  },
+  "invite": {
+    "title": "Rejoindre le réseau",
+    "invited_by": "Invité par {name}",
+    "shop_name_label": "Nom de la boutique",
+    "owner_name_label": "Votre nom",
+    "commune_label": "Commune",
+    "phone_label": "Téléphone de la boutique",
+    "language_label": "Langue préférée",
+    "join": "Rejoindre",
+    "joining": "En cours…",
+    "success": "Bienvenue dans le réseau !",
+    "invalid_token": "Lien d'invitation invalide ou expiré",
+    "phone_mismatch": "Le numéro ne correspond pas à l'invitation"
+  },
+  "errors": {
+    "network": "Erreur réseau. Réessayez.",
+    "unknown": "Une erreur est survenue",
+    "rate_limit": "Trop de requêtes. Attendez un moment.",
+    "not_found": "Introuvable",
+    "forbidden": "Accès refusé",
+    "duplicate": "Cette entrée existe déjà",
+    "timeout": "Délai dépassé. Réessayez.",
+    "request_expired": "Cette demande a expiré"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "error": "Erreur",
+    "retry": "Réessayer",
+    "close": "Fermer",
+    "minutes": "{n} min",
+    "hours": "{n} h",
+    "now": "À l'instant"
+  }
+}
