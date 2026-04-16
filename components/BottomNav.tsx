@@ -75,7 +75,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-area-pb">
-      <div className="max-w-lg mx-auto flex">
+      <div className="flex">
         {NAV_ITEMS.map(({ key, path, icon }) => {
           const active = path === "" ? currentSection === "" : currentSection === path;
           return (

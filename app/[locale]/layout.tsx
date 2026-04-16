@@ -17,9 +17,6 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#1e3a5f",
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
 };
 
 const AUTH_FREE_PATHS = ["/login", "/invite"];
@@ -44,7 +41,7 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <SessionGuard authFreePaths={AUTH_FREE_PATHS} locale={locale}>
-        <div className="flex flex-col min-h-screen max-w-lg mx-auto bg-[#f9f9f7] text-gray-900 antialiased">
+        <div className="flex flex-col min-h-screen bg-[#f9f9f7] text-gray-900 antialiased">
           <main className="flex-1 pb-20">{children}</main>
           <BottomNav />
         </div>
