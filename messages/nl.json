@@ -7,8 +7,8 @@
     "stats": "Stats"
   },
   "auth": {
-    "title": "PhoneLink Brussels",
-    "subtitle": "Verbind uw winkel met het netwerk",
+    "title": "Aanmelden",
+    "subtitle": "Voer uw e-mailadres in om een code te ontvangen",
     "email_label": "E-mailadres",
     "email_placeholder": "winkel@voorbeeld.com",
     "send_otp": "Code verzenden",
@@ -20,11 +20,14 @@
     "back": "Terug",
     "otp_sent": "Code verzonden naar {contact}",
     "invalid_email": "Ongeldig e-mailadres",
-    "invalid_otp": "Onjuiste of verlopen code"
+    "invalid_otp": "Onjuiste of verlopen code",
+    "value_1": "Vind een toestel in seconden",
+    "value_2": "Deel uw stock met het netwerk",
+    "value_3": "Volg uw herstelde verkopen"
   },
   "dashboard": {
     "title": "Aanvragen",
-    "empty": "Geen openstaande aanvragen in uw netwerk",
+    "empty": "Wanneer uw netwerkpartners een toestel zoeken, verschijnen hun aanvragen hier.",
     "matched_banner": "Overeenkomst gevonden!",
     "request_from": "Aanvraag van {shop}",
     "expires_in": "Verloopt over {time}",
@@ -36,7 +39,9 @@
     "already_responded": "Al geantwoord",
     "matched": "Gevonden bij {shop}",
     "open": "Open",
-    "loading": "Laden…"
+    "loading": "Laden…",
+    "empty_title": "Nog geen aanvragen",
+    "empty_cta": "Zoek een toestel"
   },
   "inventory": {
     "title": "Mijn stock",
@@ -84,7 +89,8 @@
     "this_week": "Deze week",
     "all_time": "Totaal",
     "confirm_sale": "Verkoop bevestigen",
-    "sale_confirmed": "Verkoop bevestigd!"
+    "sale_confirmed": "Verkoop bevestigd!",
+    "no_sales_yet": "Nog geen herstelde verkopen"
   },
   "invite": {
     "title": "Netwerk vervoegen",

@@ -7,8 +7,11 @@
     "stats": "Stats"
   },
   "auth": {
-    "title": "PhoneLink Brussels",
-    "subtitle": "Connectez votre boutique au réseau",
+    "title": "Se connecter",
+    "subtitle": "Entrez votre e-mail pour recevoir un code de connexion",
+    "value_1": "Trouvez un appareil en quelques secondes",
+    "value_2": "Partagez votre stock avec le réseau",
+    "value_3": "Suivez vos ventes récupérées",
     "email_label": "Adresse e-mail",
     "email_placeholder": "boutique@exemple.com",
     "send_otp": "Recevoir le code",
@@ -24,7 +27,9 @@
   },
   "dashboard": {
     "title": "Demandes",
-    "empty": "Aucune demande ouverte dans votre réseau",
+    "empty_title": "Pas encore de demandes",
+    "empty": "Quand vos partenaires cherchent un appareil, leurs demandes apparaissent ici.",
+    "empty_cta": "Chercher un appareil",
     "matched_banner": "Correspondance trouvée !",
     "request_from": "Demande de {shop}",
     "expires_in": "Expire dans {time}",
@@ -84,7 +89,8 @@
     "this_week": "Cette semaine",
     "all_time": "Total",
     "confirm_sale": "Confirmer la vente",
-    "sale_confirmed": "Vente confirmée !"
+    "sale_confirmed": "Vente confirmée !",
+    "no_sales_yet": "Aucune vente récupérée pour l'instant"
   },
   "invite": {
     "title": "Rejoindre le réseau",

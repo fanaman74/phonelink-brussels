@@ -171,8 +171,8 @@ function BrandSection({
   return (
     <div>
       {/* Sticky brand header — offset below the main title bar (~52px sticky) */}
-      <div className="sticky top-[52px] z-[5] bg-brand-50 border-y border-brand-100 px-4 py-1.5">
-        <p className="text-xs font-semibold text-brand uppercase tracking-wider">{brand}</p>
+      <div className="sticky top-[56px] z-[5] bg-brand-50 border-y border-brand-100 px-4 py-2">
+        <p className="text-[11px] font-bold text-brand-500 uppercase tracking-widest">{brand}</p>
       </div>
       <div className="bg-white">
         {rows.map((state) => {
@@ -376,9 +376,9 @@ export default function StockClient({ dbInventory }: Props) {
   return (
     <div className="flex flex-col">
       {/* Sticky title + controls bar */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 shadow-sm">
-        <div className="px-4 pt-3 pb-2">
-          <h1 className="text-lg font-bold text-brand">{t("title")}</h1>
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+        <div className="px-4 pt-3.5 pb-2">
+          <h1 className="text-lg font-bold text-brand-500">{t("title")}</h1>
         </div>
 
         {/* Search */}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
 import { toast } from "sonner";
 import { respondToRequest } from "@/app/actions/responses";
 import { confirmSale } from "@/app/actions/sales";
@@ -190,7 +191,7 @@ function RequestCard({
     : request.device_id;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+    <div className="bg-white rounded-2xl shadow-card border border-gray-100 p-4">
       {/* Header row */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
@@ -283,6 +284,7 @@ export default function DemandesClient({
   networkId,
 }: Props) {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
 
   const [requests, setRequests] = useState<RequestItem[]>(initialRequests);
   const [myResponseMap, setMyResponseMap] = useState<Record<string, MyResponse>>(() => {
@@ -371,21 +373,21 @@ export default function DemandesClient({
   return (
     <div className="flex flex-col">
       {/* Sticky title bar */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 py-3 shadow-sm">
-        <h1 className="text-lg font-bold text-brand">{t("title")}</h1>
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3.5 shadow-sm">
+        <h1 className="text-lg font-bold text-brand-500">{t("title")}</h1>
       </div>
 
       {/* Request list */}
       <div className="px-4 py-4 space-y-3">
         {requests.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+          <div className="flex flex-col items-center justify-center py-16 text-center px-4">
+            <div className="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center mb-4 shadow-card">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={1.5}
-                className="w-8 h-8 text-gray-400"
+                className="w-8 h-8 text-brand-500"
               >
                 <path
                   strokeLinecap="round"
@@ -394,7 +396,17 @@ export default function DemandesClient({
                 />
               </svg>
             </div>
-            <p className="text-gray-400 text-sm">{t("empty")}</p>
+            <p className="text-gray-700 font-semibold mb-1">{t("empty_title")}</p>
+            <p className="text-gray-400 text-sm mb-6 max-w-[240px]">{t("empty")}</p>
+            <Link
+              href={`/${locale}/chercher`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-700 transition-colors shadow-[0_4px_12px_rgba(30,58,95,0.25)]"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
+              </svg>
+              {t("empty_cta")}
+            </Link>
           </div>
         ) : (
           requests.map((request) => (

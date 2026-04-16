@@ -65,7 +65,7 @@ export default function BottomNav() {
   if (currentSection === "login" || currentSection === "invite") return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-area-pb">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-area-pb">
       <div className="max-w-lg mx-auto flex">
         {NAV_ITEMS.map(({ key, path, icon }) => {
           const active = currentSection === path;
@@ -73,12 +73,18 @@ export default function BottomNav() {
             <Link
               key={key}
               href={`/${locale}/${path}`}
-              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] transition-colors ${
+              className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 min-h-[60px] transition-colors relative ${
                 active ? "text-brand" : "text-gray-400 hover:text-gray-600"
               }`}
             >
-              {icon(active)}
-              <span className="text-[10px] font-medium leading-tight">{t(key)}</span>
+              {/* Active indicator pill */}
+              {active && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-b-full bg-brand" />
+              )}
+              <span className={`transition-transform duration-150 ${active ? "scale-110" : "scale-100"}`}>
+                {icon(active)}
+              </span>
+              <span className="text-[11px] font-semibold leading-tight tracking-tight">{t(key)}</span>
             </Link>
           );
         })}

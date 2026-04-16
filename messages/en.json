@@ -7,8 +7,8 @@
     "stats": "Stats"
   },
   "auth": {
-    "title": "PhoneLink Brussels",
-    "subtitle": "Connect your shop to the network",
+    "title": "Sign in",
+    "subtitle": "Enter your email to receive a sign-in code",
     "email_label": "Email address",
     "email_placeholder": "shop@example.com",
     "send_otp": "Send code",
@@ -20,11 +20,14 @@
     "back": "Back",
     "otp_sent": "Code sent to {contact}",
     "invalid_email": "Invalid email address",
-    "invalid_otp": "Incorrect or expired code"
+    "invalid_otp": "Incorrect or expired code",
+    "value_1": "Find a device in seconds",
+    "value_2": "Share your stock with the network",
+    "value_3": "Track your recovered sales"
   },
   "dashboard": {
     "title": "Requests",
-    "empty": "No open requests in your network",
+    "empty": "When your network partners are looking for a device, their requests appear here.",
     "matched_banner": "Match found!",
     "request_from": "Request from {shop}",
     "expires_in": "Expires in {time}",
@@ -36,7 +39,9 @@
     "already_responded": "Already responded",
     "matched": "Found at {shop}",
     "open": "Open",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "empty_title": "No requests yet",
+    "empty_cta": "Search for a device"
   },
   "inventory": {
     "title": "My stock",
@@ -84,7 +89,8 @@
     "this_week": "This week",
     "all_time": "All time",
     "confirm_sale": "Confirm sale",
-    "sale_confirmed": "Sale confirmed!"
+    "sale_confirmed": "Sale confirmed!",
+    "no_sales_yet": "No recovered sales yet"
   },
   "invite": {
     "title": "Join the network",

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DEVICES, displayDevice, type Device } from "@/lib/devices";
 import { getNetworkInventory } from "@/app/actions/inventory";
@@ -47,6 +48,8 @@ function filterDevices(query: string): Device[] {
 export default function CherchePage() {
   const t = useTranslations("search");
   const tErr = useTranslations("errors");
+  const locale = useLocale();
+  const router = useRouter();
 
   // Search / autocomplete
   const [query, setQuery] = useState("");
@@ -141,8 +144,9 @@ export default function CherchePage() {
       setDeviceId(id);
 
       if (id) {
-        const result = await getNetworkInventory(id);
-        setInventory((result.data as InventoryRow[] | null) ?? []);
+        // Navigate to the device detail page
+        router.push(`/${locale}/chercher/${id}`);
+        return;
       } else {
         setInventory([]);
       }
@@ -186,9 +190,12 @@ export default function CherchePage() {
   return (
     <>
       {/* ── sticky search bar ─────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-4 pt-4 pb-3 shadow-sm">
-        <h1 className="text-lg font-semibold text-brand-500 mb-2">{t("title")}</h1>
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 pt-4 pb-3 shadow-sm">
+        <h1 className="text-lg font-bold text-brand-500 mb-2.5">{t("title")}</h1>
         <div className="relative">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.8} className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+          </svg>
           <input
             ref={inputRef}
             type="text"
@@ -198,7 +205,7 @@ export default function CherchePage() {
               if (suggestions.length > 0) setShowDropdown(true);
             }}
             placeholder={t("placeholder")}
-            className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50"
+            className="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand bg-gray-50 focus:bg-white transition-colors"
           />
 
           {/* ── dropdown ─────────────────────────────────────────────── */}
@@ -242,22 +249,27 @@ export default function CherchePage() {
         {/* Inventory results */}
         {!loadingInventory && hasInventory && (
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
               {t("available_at")}
             </p>
-            <ul className="space-y-2">
-              {(inventory as InventoryRow[]).map((row) => (
+            <ul className="bg-white rounded-2xl shadow-card overflow-hidden">
+              {(inventory as InventoryRow[]).map((row, i) => (
                 <li
                   key={row.shop_id}
-                  className="flex items-center justify-between bg-white rounded-xl border border-gray-200 px-4 py-3 shadow-sm"
+                  className={`flex items-center justify-between px-4 py-3.5 ${
+                    i < (inventory as InventoryRow[]).length - 1 ? "border-b border-gray-50" : ""
+                  }`}
                 >
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {row.shops?.name ?? "—"}
-                    </p>
-                    <p className="text-xs text-gray-500">{row.shops?.commune ?? "—"}</p>
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-success flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {row.shops?.name ?? "—"}
+                      </p>
+                      <p className="text-xs text-gray-500">{row.shops?.commune ?? "—"}</p>
+                    </div>
                   </div>
-                  <span className="text-sm font-semibold text-brand-500">
+                  <span className="text-sm font-bold text-gray-900">
                     {row.price_eur != null ? `${row.price_eur} €` : "—"}
                   </span>
                 </li>
@@ -266,7 +278,7 @@ export default function CherchePage() {
 
             <button
               onClick={() => setModalOpen(true)}
-              className="mt-4 w-full rounded-xl border border-brand-500 text-brand-500 py-2.5 text-sm font-medium hover:bg-brand-50 transition-colors"
+              className="mt-4 w-full rounded-xl border border-brand-500/30 bg-brand-50 text-brand-500 py-2.5 text-sm font-semibold hover:bg-brand-100 transition-colors"
             >
               {t("request_blast")}
             </button>

@@ -161,7 +161,10 @@ export default function StatsPage() {
 
   return (
     <div className="px-4 py-4 space-y-6">
-      <h1 className="text-lg font-semibold text-brand-500">{t("title")}</h1>
+      {/* Sticky title bar */}
+      <div className="sticky top-0 z-10 -mx-4 px-4 py-3.5 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm mb-2">
+        <h1 className="text-lg font-bold text-brand-500">{t("title")}</h1>
+      </div>
 
       {/* ── 2×3 stat card grid ────────────────────────────────────────── */}
       {stats && (
@@ -192,13 +195,13 @@ export default function StatsPage() {
 
       {/* ── recovered sales detail list ───────────────────────────────── */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">
-          Ventes récupérées
+        <h2 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">
+          {t("recovered_sales")}
         </h2>
 
         {sales && sales.length === 0 && (
           <p className="text-sm text-gray-400 text-center py-8">
-            Aucune vente récupérée pour l'instant
+            {t("no_sales_yet")}
           </p>
         )}
 
