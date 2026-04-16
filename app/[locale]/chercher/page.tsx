@@ -1,43 +1,261 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useMemo, useCallback, useTransition } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { DEVICES, displayDevice, type Device } from "@/lib/devices";
-import { getNetworkInventory } from "@/app/actions/inventory";
-import { createRequest } from "@/app/actions/requests";
+import { DEVICES, type Device } from "@/lib/devices";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type InventoryRow = {
-  shop_id: string;
-  available: boolean;
-  quantity: number | null;
-  price_eur: number | null;
-  updated_at: string;
-  shops: { id: string; name: string; commune: string | null; phone: string | null } | null;
+type ModelGroup = {
+  brand: string;
+  model: string;
+  variants: Device[];
 };
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const MAX_SUGGESTIONS = 8;
+const BRANDS = [...new Set(DEVICES.map((d) => d.brand))];
+
+const BRAND_BG: Record<string, string> = {
+  Apple: "from-slate-100 to-slate-200",
+  Samsung: "from-blue-50 to-blue-100",
+  Google: "from-green-50 to-emerald-100",
+  Xiaomi: "from-orange-50 to-orange-100",
+  OnePlus: "from-red-50 to-red-100",
+  Sony: "from-gray-100 to-gray-200",
+  Motorola: "from-indigo-50 to-indigo-100",
+  Nokia: "from-sky-50 to-sky-100",
+  Honor: "from-violet-50 to-violet-100",
+  Oppo: "from-teal-50 to-teal-100",
+};
+
+const BRAND_ICON_COLOR: Record<string, string> = {
+  Apple: "text-slate-400",
+  Samsung: "text-blue-300",
+  Google: "text-green-300",
+  Xiaomi: "text-orange-300",
+  OnePlus: "text-red-300",
+  Sony: "text-gray-400",
+  Motorola: "text-indigo-300",
+  Nokia: "text-sky-300",
+  Honor: "text-violet-300",
+  Oppo: "text-teal-300",
+};
+
+const BRAND_LABEL_COLOR: Record<string, string> = {
+  Apple: "text-slate-500",
+  Samsung: "text-blue-600",
+  Google: "text-green-600",
+  Xiaomi: "text-orange-600",
+  OnePlus: "text-red-600",
+  Sony: "text-gray-500",
+  Motorola: "text-indigo-600",
+  Nokia: "text-sky-600",
+  Honor: "text-violet-600",
+  Oppo: "text-teal-600",
+};
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function filterDevices(query: string): Device[] {
-  if (!query.trim()) return [];
-  const q = query.toLowerCase();
-  return DEVICES.filter((d) => displayDevice(d).toLowerCase().includes(q)).slice(
-    0,
-    MAX_SUGGESTIONS
+function getModelGroups(query: string, brandFilter: string): ModelGroup[] {
+  const q = query.trim().toLowerCase();
+  const map = new Map<string, ModelGroup>();
+
+  for (const device of DEVICES) {
+    if (brandFilter && device.brand !== brandFilter) continue;
+    if (
+      q &&
+      !`${device.brand} ${device.model} ${device.storage_gb ?? ""}Go`
+        .toLowerCase()
+        .includes(q)
+    )
+      continue;
+
+    const key = `${device.brand}__${device.model}`;
+    if (!map.has(key)) {
+      map.set(key, { brand: device.brand, model: device.model, variants: [] });
+    }
+    map.get(key)!.variants.push(device);
+  }
+
+  return Array.from(map.values());
+}
+
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+function PhoneSilhouette({ brand }: { brand: string }) {
+  const color = BRAND_ICON_COLOR[brand] ?? "text-gray-300";
+  return (
+    <svg
+      viewBox="0 0 48 84"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`w-12 h-auto ${color}`}
+      aria-hidden="true"
+    >
+      {/* Phone body */}
+      <rect x="2" y="2" width="44" height="80" rx="8" stroke="currentColor" strokeWidth="3" />
+      {/* Camera notch */}
+      <rect x="14" y="6.5" width="20" height="4" rx="2" fill="currentColor" opacity="0.5" />
+      {/* Screen */}
+      <rect x="7" y="15" width="34" height="52" rx="3" fill="currentColor" opacity="0.08" />
+      {/* Home indicator */}
+      <rect x="18" y="73" width="12" height="3" rx="1.5" fill="currentColor" opacity="0.5" />
+    </svg>
+  );
+}
+
+function DeviceCard({
+  group,
+  onSelect,
+}: {
+  group: ModelGroup;
+  onSelect: (group: ModelGroup) => void;
+}) {
+  const bg = BRAND_BG[group.brand] ?? "from-gray-50 to-gray-100";
+  const labelColor = BRAND_LABEL_COLOR[group.brand] ?? "text-gray-500";
+
+  return (
+    <button
+      onClick={() => onSelect(group)}
+      className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-card hover:shadow-card-md hover:border-gray-200 active:scale-[0.97] transition-all duration-150 text-left w-full"
+    >
+      {/* Image area */}
+      <div
+        className={`relative flex items-center justify-center bg-gradient-to-b ${bg} pt-5 pb-4`}
+        style={{ minHeight: "120px" }}
+      >
+        <PhoneSilhouette brand={group.brand} />
+
+        {/* Variants badge */}
+        {group.variants.length > 1 && (
+          <span className="absolute top-2 right-2 text-[10px] font-bold text-gray-400 bg-white/70 backdrop-blur-sm px-1.5 py-0.5 rounded-full leading-tight">
+            {group.variants.length} Go
+          </span>
+        )}
+      </div>
+
+      {/* Info area */}
+      <div className="flex-1 flex flex-col px-3 py-3 gap-0.5">
+        <p className={`text-[11px] font-semibold uppercase tracking-wider leading-tight ${labelColor}`}>
+          {group.brand}
+        </p>
+        <p className="text-[13px] font-bold text-gray-900 leading-tight line-clamp-2">
+          {group.model}
+        </p>
+        {group.variants.length === 1 && group.variants[0].storage_gb && (
+          <p className="text-[11px] text-gray-400 mt-0.5">
+            {group.variants[0].storage_gb} Go
+          </p>
+        )}
+        {group.variants.length > 1 && (
+          <div className="flex flex-wrap gap-1 mt-1.5">
+            {group.variants.slice(0, 3).map((v) => (
+              <span
+                key={v.storage_gb}
+                className="text-[10px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md leading-tight"
+              >
+                {v.storage_gb}Go
+              </span>
+            ))}
+            {group.variants.length > 3 && (
+              <span className="text-[10px] font-medium text-gray-400 leading-tight mt-0.5">
+                +{group.variants.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </button>
+  );
+}
+
+function StorageSheet({
+  group,
+  onClose,
+  onPick,
+  loading,
+}: {
+  group: ModelGroup;
+  onClose: () => void;
+  onPick: (device: Device) => void;
+  loading: boolean;
+}) {
+  const bg = BRAND_BG[group.brand] ?? "from-gray-50 to-gray-100";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="bg-white rounded-t-[28px] w-full p-6 shadow-xl">
+        <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
+
+        {/* Device preview */}
+        <div className={`flex items-center gap-3 mb-5`}>
+          <div
+            className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-b ${bg}`}
+          >
+            <PhoneSilhouette brand={group.brand} />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              {group.brand}
+            </p>
+            <p className="text-base font-bold text-gray-900">{group.model}</p>
+          </div>
+        </div>
+
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+          Choisir la capacité
+        </p>
+
+        <div className="grid grid-cols-3 gap-2">
+          {group.variants.map((v) => (
+            <button
+              key={v.storage_gb ?? "na"}
+              onClick={() => onPick(v)}
+              disabled={loading}
+              className="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-gray-200 hover:border-brand-500 hover:bg-brand-50 active:scale-[0.97] transition-all duration-150 disabled:opacity-50"
+            >
+              <span className="text-sm font-bold text-gray-900">
+                {v.storage_gb != null ? `${v.storage_gb}` : "—"}
+              </span>
+              <span className="text-[11px] text-gray-400">Go</span>
+            </button>
+          ))}
+        </div>
+
+        {loading && (
+          <div className="flex items-center justify-center gap-2 mt-4 text-sm text-gray-400">
+            <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            Chargement…
+          </div>
+        )}
+
+        <button
+          onClick={onClose}
+          className="w-full mt-4 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+        >
+          Annuler
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -47,318 +265,223 @@ function filterDevices(query: string): Device[] {
 
 export default function CherchePage() {
   const t = useTranslations("search");
-  const tErr = useTranslations("errors");
   const locale = useLocale();
   const router = useRouter();
 
-  // Search / autocomplete
   const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<Device[]>([]);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
-  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [brandFilter, setBrandFilter] = useState("");
+  const [sheetGroup, setSheetGroup] = useState<ModelGroup | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  // Inventory
-  const [inventory, setInventory] = useState<InventoryRow[] | null>(null);
-  const [loadingInventory, setLoadingInventory] = useState(false);
+  const groups = useMemo(
+    () => getModelGroups(query, brandFilter),
+    [query, brandFilter]
+  );
 
-  // Modal
-  const [modalOpen, setModalOpen] = useState(false);
-  const [specsNote, setSpecsNote] = useState("");
-  const [sending, setSending] = useState(false);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // ── autocomplete ─────────────────────────────────────────────────────────
-
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setQuery(val);
-    const filtered = filterDevices(val);
-    setSuggestions(filtered);
-    setShowDropdown(filtered.length > 0);
-    setSelectedDevice(null);
-    setDeviceId(null);
-    setInventory(null);
-  };
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(e.target as Node)
-      ) {
-        setShowDropdown(false);
-      }
+  // Group by brand for section headers (only when no search query and no brand filter)
+  const showSections = !query.trim() && !brandFilter;
+  const brandSections = useMemo(() => {
+    if (!showSections) return null;
+    const map = new Map<string, ModelGroup[]>();
+    for (const g of groups) {
+      if (!map.has(g.brand)) map.set(g.brand, []);
+      map.get(g.brand)!.push(g);
     }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, []);
-
-  // Close dropdown on Escape
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setShowDropdown(false);
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, []);
-
-  // ── resolve device UUID via Supabase devices table ───────────────────────
-  // The static DEVICES catalog does not carry UUIDs; we look them up once
-  // from the database using the (brand, model, storage_gb) composite key.
+    return map;
+  }, [groups, showSections]);
 
   const resolveDeviceId = useCallback(async (device: Device): Promise<string | null> => {
     const supabase = getSupabaseBrowserClient();
-    const query = supabase
+    const q = supabase
       .from("devices")
       .select("id")
       .eq("brand", device.brand)
       .eq("model", device.model);
 
-    const q =
+    const finalQ =
       device.storage_gb != null
-        ? query.eq("storage_gb", device.storage_gb)
-        : query.is("storage_gb", null);
+        ? q.eq("storage_gb", device.storage_gb)
+        : q.is("storage_gb", null);
 
-    const { data } = await q.single() as { data: { id: string } | null; error: unknown };
+    const { data } = await finalQ.single() as { data: { id: string } | null; error: unknown };
     return data?.id ?? null;
   }, []);
 
-  // ── device selected from dropdown ────────────────────────────────────────
-
-  const handleSelect = async (device: Device) => {
-    setSelectedDevice(device);
-    setQuery(displayDevice(device));
-    setShowDropdown(false);
-    setInventory(null);
-    setDeviceId(null);
-    setLoadingInventory(true);
-
-    try {
-      const id = await resolveDeviceId(device);
-      setDeviceId(id);
-
-      if (id) {
-        // Navigate to the device detail page
-        router.push(`/${locale}/chercher/${id}`);
-        return;
-      } else {
-        setInventory([]);
-      }
-    } catch {
-      setInventory([]);
-    } finally {
-      setLoadingInventory(false);
-    }
-  };
-
-  // ── send request blast ───────────────────────────────────────────────────
-
-  const handleConfirmRequest = async () => {
-    if (!deviceId) return;
-    setSending(true);
-    try {
-      const result = await createRequest({
-        device_id: deviceId,
-        specs_note: specsNote.trim() || null,
-      });
-
-      if (result.error) {
-        if (result.error === "rate_limit") {
-          toast.error(t("rate_limit"));
+  const handleCardSelect = useCallback((group: ModelGroup) => {
+    if (group.variants.length === 1) {
+      // Single variant — resolve and navigate
+      setSheetGroup(group);
+      startTransition(async () => {
+        const id = await resolveDeviceId(group.variants[0]);
+        if (id) {
+          router.push(`/${locale}/chercher/${id}`);
         } else {
-          toast.error(tErr(result.error as Parameters<typeof tErr>[0]));
+          setSheetGroup(null);
         }
-      } else {
-        toast.success(t("request_sent"));
-        setModalOpen(false);
-        setSpecsNote("");
-      }
-    } finally {
-      setSending(false);
+      });
+    } else {
+      setSheetGroup(group);
     }
-  };
+  }, [resolveDeviceId, locale, router]);
 
-  const hasInventory = inventory !== null && inventory.length > 0;
-  const inventoryEmpty = inventory !== null && inventory.length === 0;
+  const handleVariantPick = useCallback((device: Device) => {
+    startTransition(async () => {
+      const id = await resolveDeviceId(device);
+      if (id) {
+        router.push(`/${locale}/chercher/${id}`);
+      } else {
+        setSheetGroup(null);
+      }
+    });
+  }, [resolveDeviceId, locale, router]);
 
   return (
     <>
-      {/* ── sticky search bar ─────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 pt-4 pb-3 shadow-sm">
-        <h1 className="text-lg font-bold text-brand-500 mb-2.5">{t("title")}</h1>
-        <div className="relative">
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.8} className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-          </svg>
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={handleInput}
-            onFocus={() => {
-              if (suggestions.length > 0) setShowDropdown(true);
-            }}
-            placeholder={t("placeholder")}
-            className="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand bg-gray-50 focus:bg-white transition-colors"
-          />
-
-          {/* ── dropdown ─────────────────────────────────────────────── */}
-          {showDropdown && (
-            <div
-              ref={dropdownRef}
-              className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-30 overflow-hidden"
+      {/* ── Sticky header ─────────────────────────────────────────────── */}
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+        {/* Title + search */}
+        <div className="px-4 pt-4 pb-2.5">
+          <h1 className="text-lg font-bold text-brand-500 mb-2.5">{t("title")}</h1>
+          <div className="relative">
+            <svg
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
             >
-              {suggestions.map((device, i) => (
-                <button
-                  key={i}
-                  onMouseDown={(e) => {
-                    e.preventDefault(); // prevent blur before click fires
-                    handleSelect(device);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-brand-50 border-b border-gray-100 last:border-0"
-                >
-                  <span className="font-medium text-gray-900">{device.brand}</span>{" "}
-                  <span className="text-gray-700">{device.model}</span>
-                  {device.storage_gb && (
-                    <span className="text-gray-500 ml-1">{device.storage_gb}Go</span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
+              <path strokeLinecap="round" strokeLinejoin="round" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+            </svg>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                if (e.target.value) setBrandFilter("");
+              }}
+              placeholder={t("placeholder")}
+              className="w-full rounded-xl border border-gray-200 pl-10 pr-9 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 bg-gray-50 focus:bg-white transition-colors"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                  <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Brand filter chips */}
+        {!query && (
+          <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-none">
+            <button
+              onClick={() => setBrandFilter("")}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                !brandFilter
+                  ? "bg-brand-500 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              Tous
+            </button>
+            {BRANDS.map((brand) => (
+              <button
+                key={brand}
+                onClick={() => setBrandFilter(b => b === brand ? "" : brand)}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  brandFilter === brand
+                    ? "bg-brand-500 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {brand}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* ── body ──────────────────────────────────────────────────────── */}
-      <div className="px-4 py-4 space-y-4">
-        {/* Loading skeleton */}
-        {loadingInventory && (
-          <div className="space-y-2">
-            {[1, 2, 3].map((n) => (
-              <div key={n} className="h-14 rounded-xl bg-gray-100 animate-pulse" />
+      {/* ── Body ──────────────────────────────────────────────────────── */}
+      <div className="px-4 py-4">
+        {groups.length === 0 ? (
+          /* Empty search state */
+          <div className="flex flex-col items-center text-center py-16 space-y-3">
+            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="m21 21-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+              </svg>
+            </div>
+            <p className="text-sm text-gray-500">{t("no_results")}</p>
+          </div>
+        ) : showSections && brandSections ? (
+          /* Sectioned by brand (default browse mode) */
+          <div className="space-y-6">
+            {Array.from(brandSections.entries()).map(([brand, brandGroups]) => (
+              <div key={brand}>
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    {brand}
+                  </p>
+                  <span className="text-xs text-gray-300 font-medium">
+                    ({brandGroups.length})
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {brandGroups.map((group) => (
+                    <DeviceCard
+                      key={`${group.brand}__${group.model}`}
+                      group={group}
+                      onSelect={handleCardSelect}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Filtered grid (search or brand filter active) */
+          <div className="grid grid-cols-2 gap-3">
+            {groups.map((group) => (
+              <DeviceCard
+                key={`${group.brand}__${group.model}`}
+                group={group}
+                onSelect={handleCardSelect}
+              />
             ))}
           </div>
         )}
 
-        {/* Inventory results */}
-        {!loadingInventory && hasInventory && (
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-              {t("available_at")}
-            </p>
-            <ul className="bg-white rounded-2xl shadow-card overflow-hidden">
-              {(inventory as InventoryRow[]).map((row, i) => (
-                <li
-                  key={row.shop_id}
-                  className={`flex items-center justify-between px-4 py-3.5 ${
-                    i < (inventory as InventoryRow[]).length - 1 ? "border-b border-gray-50" : ""
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-success flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {row.shops?.name ?? "—"}
-                      </p>
-                      <p className="text-xs text-gray-500">{row.shops?.commune ?? "—"}</p>
-                    </div>
-                  </div>
-                  <span className="text-sm font-bold text-gray-900">
-                    {row.price_eur != null ? `${row.price_eur} €` : "—"}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            <button
-              onClick={() => setModalOpen(true)}
-              className="mt-4 w-full rounded-xl border border-brand-500/30 bg-brand-50 text-brand-500 py-2.5 text-sm font-semibold hover:bg-brand-100 transition-colors"
-            >
-              {t("request_blast")}
-            </button>
-          </div>
-        )}
-
-        {/* No inventory found — prominent CTA */}
-        {!loadingInventory && inventoryEmpty && selectedDevice && (
-          <div className="flex flex-col items-center text-center py-10 space-y-4">
-            <div className="w-14 h-14 rounded-full bg-brand-50 flex items-center justify-center">
-              <svg
-                className="w-7 h-7 text-brand-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-                />
-              </svg>
-            </div>
-            <p className="text-sm text-gray-600 max-w-xs">{t("no_results")}</p>
-            <button
-              onClick={() => setModalOpen(true)}
-              className="rounded-xl bg-brand-500 text-white px-6 py-3 text-sm font-semibold hover:bg-brand-700 transition-colors shadow"
-            >
-              {t("request_blast")}
-            </button>
-          </div>
-        )}
-
-        {/* Initial empty state */}
-        {!loadingInventory && inventory === null && (
-          <p className="text-center text-sm text-gray-400 mt-10">{t("check_stock")}</p>
+        {/* Results count when filtering */}
+        {(query || brandFilter) && groups.length > 0 && (
+          <p className="text-center text-xs text-gray-400 mt-4">
+            {groups.length} modèle{groups.length > 1 ? "s" : ""}
+          </p>
         )}
       </div>
 
-      {/* ── confirmation modal ────────────────────────────────────────── */}
-      {modalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setModalOpen(false);
-          }}
-        >
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm mx-0 sm:mx-4 p-5 shadow-xl">
-            <h2 className="text-base font-semibold text-gray-900 mb-1">
-              {t("confirm_request")}
-            </h2>
-            {selectedDevice && (
-              <p className="text-sm text-brand-500 font-medium mb-4">
-                {displayDevice(selectedDevice)}
-              </p>
-            )}
-            <textarea
-              value={specsNote}
-              onChange={(e) => setSpecsNote(e.target.value)}
-              placeholder={t("request_note_placeholder")}
-              maxLength={500}
-              rows={3}
-              className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50"
-            />
-            <div className="flex gap-3 mt-4">
-              <button
-                onClick={() => setModalOpen(false)}
-                className="flex-1 rounded-xl border border-gray-300 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                {t("cancel")}
-              </button>
-              <button
-                onClick={handleConfirmRequest}
-                disabled={sending || !deviceId}
-                className="flex-1 rounded-xl bg-brand-500 text-white py-2.5 text-sm font-semibold hover:bg-brand-700 disabled:opacity-50 transition-colors"
-              >
-                {sending ? "…" : t("request_blast")}
-              </button>
-            </div>
+      {/* ── Storage picker sheet ───────────────────────────────────────── */}
+      {sheetGroup && sheetGroup.variants.length > 1 && (
+        <StorageSheet
+          group={sheetGroup}
+          onClose={() => setSheetGroup(null)}
+          onPick={handleVariantPick}
+          loading={isPending}
+        />
+      )}
+
+      {/* ── Loading overlay for single-variant navigation ─────────────── */}
+      {isPending && sheetGroup && sheetGroup.variants.length === 1 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3">
+            <svg className="w-6 h-6 animate-spin text-brand-500" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <p className="text-sm text-gray-500">Chargement…</p>
           </div>
         </div>
       )}
