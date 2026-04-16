@@ -83,8 +83,13 @@ function ShopRow({ row, isLowest }: { row: ShopStock; isLowest: boolean }) {
       <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
         <PriceTag price={row.price_eur} />
         {isLowest && row.price_eur != null && row.available && (
-          <span className="text-[10px] font-semibold text-success-600 bg-success-50 px-1.5 py-0.5 rounded-full">
+          <span className="text-[10px] font-bold text-success bg-success-50 px-1.5 py-0.5 rounded-full leading-tight">
             Meilleur prix
+          </span>
+        )}
+        {row.quantity != null && row.quantity <= 2 && row.available && (
+          <span className="text-[10px] font-medium text-accent-500 leading-tight">
+            {row.quantity === 1 ? "Dernier exemplaire" : `${row.quantity} restants`}
           </span>
         )}
       </div>
