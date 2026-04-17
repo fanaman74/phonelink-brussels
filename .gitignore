@@ -13,3 +13,4 @@ test-results
 .supabase
 .gstack/
 .gstack-screenshots/
+tsconfig.tsbuildinfo
