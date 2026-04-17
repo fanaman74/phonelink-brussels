@@ -61,16 +61,14 @@ const NAV_ITEMS = [
   },
 ];
 
-export default function BottomNav() {
+export default function BottomNav({ openRequestCount = 0 }: { openRequestCount?: number }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
 
-  // Extract locale and current section from path
   const parts = pathname.split("/").filter(Boolean);
   const locale = parts[0] || "fr";
   const currentSection = parts[1] || "";
 
-  // Hide nav on login/invite pages
   if (currentSection === "login" || currentSection === "invite") return null;
 
   return (
@@ -78,6 +76,7 @@ export default function BottomNav() {
       <div className="flex">
         {NAV_ITEMS.map(({ key, path, icon }) => {
           const active = path === "" ? currentSection === "" : currentSection === path;
+          const showBadge = key === "demandes" && openRequestCount > 0;
           return (
             <Link
               key={key}
@@ -86,12 +85,16 @@ export default function BottomNav() {
                 active ? "text-brand" : "text-gray-400 hover:text-gray-600"
               }`}
             >
-              {/* Active indicator pill */}
               {active && (
                 <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-b-full bg-brand" />
               )}
-              <span className={`transition-transform duration-150 ${active ? "scale-110" : "scale-100"}`}>
+              <span className={`relative transition-transform duration-150 ${active ? "scale-110" : "scale-100"}`}>
                 {icon(active)}
+                {showBadge && (
+                  <span className="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+                    {openRequestCount > 99 ? "99+" : openRequestCount}
+                  </span>
+                )}
               </span>
               <span className="text-[11px] font-semibold leading-tight tracking-tight">{t(key)}</span>
             </Link>
