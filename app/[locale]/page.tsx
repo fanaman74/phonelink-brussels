@@ -143,8 +143,8 @@ export default async function HomePage({
       </div>
 
       {/* ── 2. VIDEO HERO ───────────────────────────────────────────── */}
-      <div className="relative w-full overflow-hidden" style={{ height: "260px" }}>
-        {/* Free stock video — phone shop shoppers (Mixkit, free license) */}
+      <div className="relative w-full overflow-hidden" style={{ height: "400px" }}>
+        {/* Local video — phone shop scene (Pexels free license, served from /public) */}
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <video
           autoPlay
@@ -154,14 +154,7 @@ export default async function HomePage({
           className="absolute inset-0 w-full h-full object-cover"
           poster="https://images.pexels.com/photos/1350560/pexels-photo-1350560.jpeg?auto=compress&cs=tinysrgb&w=800"
         >
-          <source
-            src="https://videos.pexels.com/video-files/5076925/5076925-hd_1920_1080_25fps.mp4"
-            type="video/mp4"
-          />
-          <source
-            src="https://assets.mixkit.co/videos/preview/mixkit-people-in-a-technology-store-6088-large.mp4"
-            type="video/mp4"
-          />
+          <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
 
         {/* Dark overlay — heavier at bottom so metric card bleeds in */}
