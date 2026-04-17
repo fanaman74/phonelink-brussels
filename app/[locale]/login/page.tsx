@@ -99,40 +99,40 @@ export default function LoginPage() {
         </a>
       </div>
 
-      {/* Top brand section */}
-      <div className="relative flex-1 flex flex-col items-center justify-center px-6 pt-4 pb-8">
+      {/* Hero brand — centered */}
+      <div className="relative flex-1 flex flex-col items-center justify-center px-6 pb-4">
         {/* Logo mark */}
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-[84px] h-[84px] rounded-[24px] bg-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] mb-5">
-            <svg viewBox="0 0 40 40" fill="none" className="w-11 h-11" aria-hidden="true">
-              <rect x="8" y="4" width="16" height="26" rx="3" fill="#1e3a5f" />
-              <rect x="11" y="7" width="10" height="16" rx="1.5" fill="#ffffff" />
-              <circle cx="16" cy="27" r="1.5" fill="#ffffff" />
-              <path d="M27 14h4M27 18h4M27 22h4" stroke="#e67e22" strokeWidth="2.5" strokeLinecap="round" />
+        <div className="flex flex-col items-center">
+
+          {/* New logo: circular badge with stylised phone + signal arcs */}
+          <div className="w-[100px] h-[100px] rounded-[28px] bg-white/95 backdrop-blur flex items-center justify-center shadow-[0_12px_40px_rgba(0,0,0,0.45)] mb-6">
+            <svg viewBox="0 0 56 56" fill="none" className="w-14 h-14" aria-hidden="true">
+              {/* Phone handset body */}
+              <rect x="14" y="8" width="20" height="32" rx="4" fill="#1e3a5f"/>
+              <rect x="17" y="12" width="14" height="20" rx="2" fill="#e8f0fe"/>
+              <circle cx="24" cy="35" r="2" fill="#ffffff"/>
+              {/* Signal / link arcs — orange */}
+              <path d="M38 20 Q44 20 44 28 Q44 36 38 36" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
+              <path d="M38 24 Q41 24 41 28 Q41 32 38 32" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
             </svg>
           </div>
+
+          {/* PhoneLink Brussels — Changos, large */}
           <h1
-            className="text-[42px] text-white leading-tight drop-shadow-lg"
+            className="text-[52px] text-white leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] text-center"
             style={{ fontFamily: "'Changos', cursive" }}
           >
             PhoneLink
           </h1>
-          <p className="text-white/70 text-sm font-medium mt-1 tracking-wide uppercase">Brussels Network</p>
+          <p
+            className="text-[22px] text-white/90 mt-1 drop-shadow text-center"
+            style={{ fontFamily: "'Changos', cursive" }}
+          >
+            Brussels
+          </p>
         </div>
+      </div>
 
-        {/* Value props */}
-        <div className="flex flex-col gap-3 w-full max-w-[280px] mb-10">
-          {[
-            { icon: "⚡", text: t("auth.value_1") },
-            { icon: "🔗", text: t("auth.value_2") },
-            { icon: "📊", text: t("auth.value_3") },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm text-white/80 drop-shadow">
-              <span className="text-base leading-none">{item.icon}</span>
-              <span>{item.text}</span>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Bottom login card — slides up from bottom */}
