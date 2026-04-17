@@ -32,7 +32,9 @@ export default function ReserveButton({ deviceId, respondingShopId, priceEur, la
         const msgs: Record<string, string> = {
           self_reserve: "Vous ne pouvez pas réserver chez vous-même.",
           rate_limit: "Trop de demandes actives. Attendez un peu.",
-          forbidden: "Session expirée, reconnectez-vous.",
+          no_session: "Session expirée, reconnectez-vous.",
+          no_shop: "Aucune boutique liée à ce compte.",
+          forbidden: "Accès refusé.",
         };
         toast.error(msgs[result.error] ?? "Erreur lors de la réservation.");
         setConfirmed(false);

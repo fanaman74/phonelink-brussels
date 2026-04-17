@@ -62,27 +62,36 @@ export async function reserveDevice(input: z.infer<typeof ReserveSchema>) {
   if (!parsed.success) return { error: "invalid_input" as const };
 
   const supabase = await createClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const s = supabase as any;
+  const svc = getServiceClient();
 
-  // Force session refresh so auth.uid() is valid in subsequent RPC/DB calls.
-  // Without this, an expired JWT means auth.uid() returns null inside Postgres.
+  // 1. Verify the user is authenticated
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "forbidden" as const };
+  if (!user) return { error: "no_session" as const };
 
-  // Resolve current shop
-  const { data: myShopId } = await s.rpc("auth_shop_id");
-  if (!myShopId) return { error: "forbidden" as const };
+  // 2. Resolve current shop via service role (avoids RPC auth dependency)
+  const { data: shopRow } = await svc
+    .from("shops")
+    .select("id, network_id")
+    .eq("user_id", user.id)
+    .single();
+  if (!shopRow) return { error: "no_shop" as const };
+
+  const myShopId = shopRow.id;
+  const myNetworkId = shopRow.network_id;
 
   // Guard: can't reserve from yourself
   if (myShopId === parsed.data.responding_shop_id) {
     return { error: "self_reserve" as const };
   }
 
-  // 1. Create the request — trigger sets requesting_shop_id + network_id
-  const { data: req, error: reqErr } = await s
+  // 3. Create the request via service role, setting fields explicitly
+  const { data: req, error: reqErr } = await svc
     .from("requests")
-    .insert({ device_id: parsed.data.device_id })
+    .insert({
+      device_id: parsed.data.device_id,
+      requesting_shop_id: myShopId,
+      network_id: myNetworkId,
+    })
     .select("id")
     .single();
 
@@ -91,10 +100,7 @@ export async function reserveDevice(input: z.infer<typeof ReserveSchema>) {
     return { error: classifyError(reqErr) };
   }
 
-  // 2. Pre-create the response on behalf of the target shop.
-  //    RLS prevents the requesting user from inserting a response for another shop,
-  //    so we use the service-role client which bypasses RLS.
-  const svc = getServiceClient();
+  // 4. Pre-create the response on behalf of the target shop (service role)
   const { error: respErr } = await svc.from("responses").insert({
     request_id: req.id,
     responding_shop_id: parsed.data.responding_shop_id,
