@@ -1,9 +1,19 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { classifyError } from "@/lib/supabase/errors";
 import { z } from "zod";
 import { redirect } from "next/navigation";
+
+// Service-role client — bypasses RLS for cross-shop writes (responses insert)
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+}
 
 const CreateRequestSchema = z.object({
   device_id: z.string().uuid(),
@@ -15,6 +25,9 @@ export async function createRequest(input: z.infer<typeof CreateRequestSchema>) 
   if (!parsed.success) return { error: "invalid_input" as const };
 
   const supabase = await createClient();
+  // Force session refresh before any authenticated DB call
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "forbidden" as const };
 
   // network_id and requesting_shop_id populated by trigger
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,6 +65,11 @@ export async function reserveDevice(input: z.infer<typeof ReserveSchema>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const s = supabase as any;
 
+  // Force session refresh so auth.uid() is valid in subsequent RPC/DB calls.
+  // Without this, an expired JWT means auth.uid() returns null inside Postgres.
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "forbidden" as const };
+
   // Resolve current shop
   const { data: myShopId } = await s.rpc("auth_shop_id");
   if (!myShopId) return { error: "forbidden" as const };
@@ -73,10 +91,11 @@ export async function reserveDevice(input: z.infer<typeof ReserveSchema>) {
     return { error: classifyError(reqErr) };
   }
 
-  // 2. Pre-create the response on behalf of the target shop (needs service role or trigger)
-  //    We insert using the responding_shop_id directly — RLS must allow it or we use service key.
-  //    For now we create with the service-role-equivalent insert via raw upsert.
-  const { error: respErr } = await s.from("responses").insert({
+  // 2. Pre-create the response on behalf of the target shop.
+  //    RLS prevents the requesting user from inserting a response for another shop,
+  //    so we use the service-role client which bypasses RLS.
+  const svc = getServiceClient();
+  const { error: respErr } = await svc.from("responses").insert({
     request_id: req.id,
     responding_shop_id: parsed.data.responding_shop_id,
     has_device: true,
@@ -84,12 +103,11 @@ export async function reserveDevice(input: z.infer<typeof ReserveSchema>) {
   });
 
   if (respErr) {
-    // Non-fatal — request exists, response just won't be pre-filled
     console.error("[reserveDevice] response insert error:", respErr);
   }
 
-  // 3. Mark request as matched
-  await s.from("requests").update({ status: "matched" }).eq("id", req.id);
+  // 3. Mark request as matched (service role to bypass RLS on update)
+  await svc.from("requests").update({ status: "matched" }).eq("id", req.id);
 
   redirect(`/${parsed.data.locale}/demandes`);
 }
