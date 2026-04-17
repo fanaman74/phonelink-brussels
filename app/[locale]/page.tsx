@@ -142,18 +142,67 @@ export default async function HomePage({
         <span className="text-sm" style={{ color: "#9ca3af" }}>{d.shopName}</span>
       </div>
 
-      {/* ── 2. NETWORK STATUS BAR ───────────────────────────────────── */}
-      <div
-        className="flex items-center px-4 py-2 border-b"
-        style={{ background: "rgba(30,58,95,0.3)", borderColor: "rgba(30,58,95,0.5)" }}
-      >
-        <span
-          className="animate-pulse inline-block w-2 h-2 rounded-full mr-2 flex-shrink-0"
-          style={{ background: "#22c55e" }}
+      {/* ── 2. VIDEO HERO ───────────────────────────────────────────── */}
+      <div className="relative w-full overflow-hidden" style={{ height: "260px" }}>
+        {/* Free stock video — phone shop shoppers (Mixkit, free license) */}
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          poster="https://images.pexels.com/photos/1350560/pexels-photo-1350560.jpeg?auto=compress&cs=tinysrgb&w=800"
+        >
+          <source
+            src="https://videos.pexels.com/video-files/5076925/5076925-hd_1920_1080_25fps.mp4"
+            type="video/mp4"
+          />
+          <source
+            src="https://assets.mixkit.co/videos/preview/mixkit-people-in-a-technology-store-6088-large.mp4"
+            type="video/mp4"
+          />
+        </video>
+
+        {/* Dark overlay — heavier at bottom so metric card bleeds in */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(to bottom, rgba(17,24,39,0.55) 0%, rgba(17,24,39,0.3) 40%, rgba(17,24,39,0.85) 100%)",
+          }}
         />
-        <span className="text-xs" style={{ color: "#9ca3af" }}>
-          Réseau actif · {d.networkShops.length} boutiques en ligne
-        </span>
+
+        {/* Brand overlay — centred */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-4">
+          <h1
+            className="text-white text-center leading-none drop-shadow-lg"
+            style={{ fontFamily: "'Chango', cursive", fontSize: "44px" }}
+          >
+            PhoneLink
+            <br />
+            <span style={{ color: "#f97316" }}>Brussels</span>
+          </h1>
+          <p className="text-white/70 text-sm font-medium tracking-wide mt-2 text-center">
+            Réseau de boutiques téléphonie
+          </p>
+        </div>
+
+        {/* Network status pill — bottom-left */}
+        <div className="absolute bottom-3 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+          style={{ background: "rgba(17,24,39,0.75)", backdropFilter: "blur(8px)", border: "1px solid rgba(55,65,81,0.8)" }}
+        >
+          <span className="animate-pulse w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#22c55e" }} />
+          <span className="text-xs font-medium" style={{ color: "#9ca3af" }}>
+            {d.networkShops.length} boutiques en ligne
+          </span>
+        </div>
+
+        {/* Shop name pill — bottom-right */}
+        <div className="absolute bottom-3 right-4 px-3 py-1.5 rounded-full"
+          style={{ background: "rgba(17,24,39,0.75)", backdropFilter: "blur(8px)", border: "1px solid rgba(55,65,81,0.8)" }}
+        >
+          <span className="text-xs font-medium text-white">{d.shopName}</span>
+        </div>
       </div>
 
       {/* ── 3. HERO METRIC CARD ─────────────────────────────────────── */}
