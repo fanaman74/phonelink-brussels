@@ -68,7 +68,7 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <SessionGuard authFreePaths={AUTH_FREE_PATHS} locale={locale}>
-        <div className="flex flex-col min-h-screen bg-[#f9f9f7] text-gray-900 antialiased">
+        <div className="flex flex-col min-h-screen bg-[#111827] text-gray-50 antialiased">
           <main className="flex-1 pb-20">{children}</main>
           <BottomNav openRequestCount={openRequestCount} />
         </div>

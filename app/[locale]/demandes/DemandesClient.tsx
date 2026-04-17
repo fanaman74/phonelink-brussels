@@ -50,7 +50,7 @@ function TimeBadge({ expiresAt, status }: { expiresAt: string; status: string })
 
   if (isExpired) {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-600 line-through">
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 line-through">
         {t("dashboard.expired")}
       </span>
     );
@@ -61,8 +61,8 @@ function TimeBadge({ expiresAt, status }: { expiresAt: string; status: string })
     <span
       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
         isWarning
-          ? "bg-orange-100 text-orange-700"
-          : "bg-green-100 text-green-700"
+          ? "bg-orange-900/40 text-[#f97316]"
+          : "bg-green-900/40 text-[#22c55e]"
       }`}
     >
       {label}
@@ -114,11 +114,11 @@ function ResponseForm({
 
   if (open) {
     return (
-      <div className="mt-3 flex flex-col gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
-        <label className="text-xs text-gray-500 font-medium">{t("price_optional")}</label>
+      <div className="mt-3 flex flex-col gap-2 p-3 rounded-xl bg-[#111827] border border-[#374151]">
+        <label className="text-xs text-[#9ca3af] font-medium">{t("price_optional")}</label>
         <div className="flex gap-2 items-center">
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b7280] text-sm">€</span>
             <input
               type="number"
               min="0"
@@ -126,7 +126,7 @@ function ResponseForm({
               placeholder="ex. 299"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full pl-7 pr-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+              className="w-full pl-7 pr-3 py-2 rounded-lg border border-[#374151] bg-[#1f2937] text-white placeholder-[#6b7280] text-sm focus:outline-none focus:ring-2 focus:ring-[#f97316]/20 focus:border-[#f97316]"
               autoFocus
             />
           </div>
@@ -139,7 +139,7 @@ function ResponseForm({
           </button>
           <button
             onClick={() => setOpen(false)}
-            className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="px-3 py-2 rounded-lg border border-[#374151] text-sm text-[#9ca3af] hover:text-white transition-colors"
           >
             ✕
           </button>
@@ -153,14 +153,14 @@ function ResponseForm({
       <button
         onClick={() => setOpen(true)}
         disabled={isPending}
-        className="flex-1 py-2 rounded-xl bg-success text-white text-sm font-semibold hover:bg-success/90 disabled:opacity-50 transition-colors"
+        className="flex-1 py-2 rounded-xl bg-[#f97316] text-black text-sm font-bold hover:bg-orange-400 disabled:opacity-50 transition-colors"
       >
         {t("respond")}
       </button>
       <button
         onClick={handleNo}
         disabled={isPending}
-        className="flex-1 py-2 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 disabled:opacity-50 transition-colors"
+        className="flex-1 py-2 rounded-xl bg-[#374151] text-[#9ca3af] text-sm font-semibold hover:bg-[#4b5563] disabled:opacity-50 transition-colors"
       >
         {isPending ? "…" : t("no_stock")}
       </button>
@@ -193,27 +193,27 @@ function RequestCard({
     : request.device_id;
 
   return (
-    <div className="bg-white rounded-2xl shadow-card border border-gray-100 p-4">
+    <div className="bg-[#1f2937] rounded-2xl shadow-card border border-[#374151] border-l-4 border-l-[#f97316] p-4">
       {/* Header row */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-gray-900 text-base leading-snug truncate">
+          <p className="font-semibold text-white text-base leading-snug truncate">
             {deviceLabel}
           </p>
           {request.shops && (
-            <p className="mt-0.5 text-sm text-gray-500">
+            <p className="mt-0.5 text-sm text-[#9ca3af]">
               {request.shops.name}
               {request.shops.commune ? ` · ${request.shops.commune}` : ""}
             </p>
           )}
           {request.specs_note && (
-            <p className="mt-1 text-xs text-gray-400 italic">{request.specs_note}</p>
+            <p className="mt-1 text-xs text-[#6b7280] italic">{request.specs_note}</p>
           )}
         </div>
         <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
           <TimeBadge expiresAt={request.expires_at} status={request.status} />
           {request.status === "matched" && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-success">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-900/50 text-[#22c55e]">
               ✓ {t("matched", { shop: request.shops?.name ?? "" })}
             </span>
           )}
@@ -227,14 +227,14 @@ function RequestCard({
               For the dashboard we don't have per-request response detail here.
               Show a matched badge if status is matched. */}
           {request.status === "matched" && (
-            <div className="flex items-center gap-2 p-2 rounded-xl bg-green-50 border border-green-100">
-              <span className="text-success text-sm font-medium">
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-green-900/30 border border-green-800/50">
+              <span className="text-[#22c55e] text-sm font-medium">
                 {t("matched_banner")}
               </span>
             </div>
           )}
           {request.status === "open" && isOpen && (
-            <p className="text-xs text-gray-400 italic">{t("loading")}</p>
+            <p className="text-xs text-[#6b7280] italic">{t("loading")}</p>
           )}
         </div>
       )}
@@ -247,9 +247,9 @@ function RequestCard({
           ) : (
             <div className="mt-3">
               {myResponse.has_device ? (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-50 border border-green-100">
-                  <span className="w-2 h-2 rounded-full bg-success flex-shrink-0" />
-                  <span className="text-sm text-success font-medium">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-900/30 border border-green-800/50">
+                  <span className="w-2 h-2 rounded-full bg-[#22c55e] flex-shrink-0" />
+                  <span className="text-sm text-[#22c55e] font-medium">
                     {t("respond")}
                     {myResponse.price_eur != null
                       ? ` · €${myResponse.price_eur}`
@@ -257,9 +257,9 @@ function RequestCard({
                   </span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-100">
-                  <span className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0" />
-                  <span className="text-sm text-gray-400 font-medium">{t("no_stock")}</span>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#111827] border border-[#374151]">
+                  <span className="w-2 h-2 rounded-full bg-[#374151] flex-shrink-0" />
+                  <span className="text-sm text-[#9ca3af] font-medium">{t("no_stock")}</span>
                 </div>
               )}
             </div>
@@ -269,8 +269,8 @@ function RequestCard({
 
       {/* Expired and not my own */}
       {!isMyRequest && !isOpen && (
-        <div className="mt-3 px-3 py-2 rounded-xl bg-gray-50">
-          <span className="text-xs text-gray-400">{tErr("request_expired")}</span>
+        <div className="mt-3 px-3 py-2 rounded-xl bg-[#111827]">
+          <span className="text-xs text-[#6b7280]">{tErr("request_expired")}</span>
         </div>
       )}
     </div>
@@ -388,12 +388,12 @@ export default function DemandesClient({
   }, [networkId]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-[#111827] min-h-screen">
       {/* Sticky title bar */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3.5 shadow-sm flex items-center gap-2.5">
-        <h1 className="text-lg font-bold text-brand-500">{t("title")}</h1>
+      <div className="sticky top-0 z-10 bg-[#111827]/95 backdrop-blur-sm border-b border-[#374151] px-4 py-3.5 shadow-sm flex items-center gap-2.5">
+        <h1 className="text-lg font-bold text-[#f97316]" style={{ fontFamily: "'Chango', cursive" }}>{t("title")}</h1>
         {requests.length > 0 && (
-          <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-brand-500 text-white text-xs font-bold leading-none">
+          <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-[#f97316] text-black text-xs font-bold leading-none">
             {requests.length}
           </span>
         )}
@@ -402,38 +402,38 @@ export default function DemandesClient({
       {/* My reservations — requests I made at other shops */}
       {myReservations.length > 0 && (
         <div className="px-4 pt-4 pb-2">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Mes réservations</p>
+          <p className="text-xs font-bold text-[#9ca3af] uppercase tracking-widest mb-2">Mes réservations</p>
           <div className="space-y-2">
             {myReservations.map((res) => {
               const shopName = res.shop_name ?? "—";
               const price = res.price_eur != null ? `${res.price_eur} €` : null;
               const statusColor =
-                res.status === "matched" ? "bg-green-100 text-green-700" :
-                res.status === "expired" ? "bg-red-100 text-red-500" :
-                "bg-blue-100 text-blue-600";
+                res.status === "matched" ? "bg-green-900/50 text-green-400" :
+                res.status === "expired" ? "bg-red-900/30 text-red-400" :
+                "bg-[#374151] text-[#9ca3af]";
               const statusLabel =
                 res.status === "matched" ? "Confirmé" :
                 res.status === "expired" ? "Expiré" : "En attente";
               const isCancelling = cancellingId === res.id;
               return (
-                <div key={res.id} className="flex items-start justify-between bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm gap-3">
+                <div key={res.id} className="flex items-start justify-between bg-[#1f2937] border border-[#374151] rounded-2xl px-4 py-3 shadow-sm gap-3">
                   <div className="flex-1 min-w-0">
                     <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full mb-1 ${statusColor}`}>{statusLabel}</span>
-                    <p className="text-sm font-semibold text-gray-900 truncate">
+                    <p className="text-sm font-semibold text-white truncate">
                       {res.devices ? `${res.devices.brand} ${res.devices.model}` : "—"}
-                      {res.devices?.storage_gb ? <span className="text-gray-400 font-normal ml-1">{res.devices.storage_gb}Go</span> : null}
+                      {res.devices?.storage_gb ? <span className="text-[#6b7280] font-normal ml-1">{res.devices.storage_gb}Go</span> : null}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5">Chez {shopName}{price ? ` · ${price}` : ""}</p>
+                    <p className="text-xs text-[#6b7280] mt-0.5">Chez {shopName}{price ? ` · ${price}` : ""}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 mt-1">
                     <button
                       onClick={() => handleCancelReservation(res.id)}
                       disabled={isCancelling}
-                      className="w-7 h-7 flex items-center justify-center rounded-full bg-red-50 hover:bg-red-100 text-red-400 hover:text-red-600 transition-colors disabled:opacity-40"
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-red-900/30 hover:bg-red-900/50 text-red-400 hover:text-red-300 transition-colors disabled:opacity-40"
                       title="Annuler"
                     >
                       {isCancelling ? (
-                        <span className="w-3 h-3 border-2 border-red-300 border-t-red-500 rounded-full animate-spin" />
+                        <span className="w-3 h-3 border-2 border-red-700 border-t-red-400 rounded-full animate-spin" />
                       ) : (
                         <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
                           <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
@@ -451,7 +451,7 @@ export default function DemandesClient({
       {/* Divider */}
       {myReservations.length > 0 && (
         <div className="px-4 pt-3 pb-1">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Demandes du réseau</p>
+          <p className="text-xs font-bold text-[#9ca3af] uppercase tracking-widest">Demandes du réseau</p>
         </div>
       )}
 
@@ -459,13 +459,13 @@ export default function DemandesClient({
       <div className="px-4 py-4 space-y-3">
         {requests.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-            <div className="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center mb-4 shadow-card">
+            <div className="w-16 h-16 rounded-2xl bg-[#1f2937] flex items-center justify-center mb-4 shadow-card border border-[#374151]">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={1.5}
-                className="w-8 h-8 text-brand-500"
+                className="w-8 h-8 text-[#f97316]"
               >
                 <path
                   strokeLinecap="round"
@@ -474,11 +474,11 @@ export default function DemandesClient({
                 />
               </svg>
             </div>
-            <p className="text-gray-700 font-semibold mb-1">{t("empty_title")}</p>
-            <p className="text-gray-400 text-sm mb-6 max-w-[240px]">{t("empty")}</p>
+            <p className="text-white font-semibold mb-1">{t("empty_title")}</p>
+            <p className="text-[#9ca3af] text-sm mb-6 max-w-[240px]">{t("empty")}</p>
             <Link
               href={`/${locale}/chercher`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-700 transition-colors shadow-[0_4px_12px_rgba(30,58,95,0.25)]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#f97316] text-black text-sm font-bold hover:bg-orange-400 transition-colors shadow-[0_4px_12px_rgba(249,115,22,0.3)]"
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />

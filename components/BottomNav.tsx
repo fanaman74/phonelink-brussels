@@ -72,7 +72,7 @@ export default function BottomNav({ openRequestCount = 0 }: { openRequestCount?:
   if (currentSection === "login" || currentSection === "invite") return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-area-pb">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#1f2937] backdrop-blur-sm border-t border-[#374151] safe-area-pb">
       <div className="flex">
         {NAV_ITEMS.map(({ key, path, icon }) => {
           const active = path === "" ? currentSection === "" : currentSection === path;
@@ -82,11 +82,11 @@ export default function BottomNav({ openRequestCount = 0 }: { openRequestCount?:
               key={key}
               href={path === "" ? `/${locale}` : `/${locale}/${path}`}
               className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 min-h-[60px] transition-colors relative ${
-                active ? "text-brand" : "text-gray-400 hover:text-gray-600"
+                active ? "text-[#f97316]" : "text-[#6b7280] hover:text-[#9ca3af]"
               }`}
             >
               {active && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-b-full bg-brand" />
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-b-full bg-[#f97316]" />
               )}
               <span className={`relative transition-transform duration-150 ${active ? "scale-110" : "scale-100"}`}>
                 {icon(active)}

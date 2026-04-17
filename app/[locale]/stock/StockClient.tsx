@@ -24,25 +24,25 @@ type DeviceState = {
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
 const BRAND_BG: Record<string, string> = {
-  Apple: "from-slate-100 to-slate-200",
-  Samsung: "from-blue-50 to-blue-100",
-  Google: "from-green-50 to-emerald-100",
-  Xiaomi: "from-orange-50 to-orange-100",
-  OnePlus: "from-red-50 to-red-100",
-  Sony: "from-gray-100 to-gray-200",
-  Motorola: "from-indigo-50 to-indigo-100",
-  Nokia: "from-sky-50 to-sky-100",
-  Honor: "from-violet-50 to-violet-100",
-  Oppo: "from-teal-50 to-teal-100",
+  Apple: "from-[#1e2535] to-[#252d3d]",
+  Samsung: "from-[#1a2535] to-[#1e2d40]",
+  Google: "from-[#1a2b25] to-[#1e3030]",
+  Xiaomi: "from-[#2b2018] to-[#332518]",
+  OnePlus: "from-[#2b1a1a] to-[#331e1e]",
+  Sony: "from-[#1e2535] to-[#252d3d]",
+  Motorola: "from-[#1a1e35] to-[#1e2540]",
+  Nokia: "from-[#1a2535] to-[#1e2d40]",
+  Honor: "from-[#221a35] to-[#281e3d]",
+  Oppo: "from-[#1a2b28] to-[#1e3030]",
 };
 
 const BRAND_ICON_COLOR: Record<string, string> = {
-  Apple: "text-slate-400",
+  Apple: "text-slate-300",
   Samsung: "text-blue-300",
   Google: "text-green-300",
   Xiaomi: "text-orange-300",
   OnePlus: "text-red-300",
-  Sony: "text-gray-400",
+  Sony: "text-gray-300",
   Motorola: "text-indigo-300",
   Nokia: "text-sky-300",
   Honor: "text-violet-300",
@@ -123,7 +123,7 @@ function ToggleSwitch({ checked, onChange, disabled }: { checked: boolean; onCha
       aria-checked={checked}
       disabled={disabled}
       onClick={(e) => { e.stopPropagation(); onChange(!checked); }}
-      className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 ${checked ? "bg-success" : "bg-gray-200"}`}
+      className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 ${checked ? "bg-[#f97316]" : "bg-[#374151]"}`}
     >
       <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ${checked ? "translate-x-4" : "translate-x-0"}`} />
     </button>
@@ -141,15 +141,15 @@ function StockCard({
   onTap: () => void;
   onEditPrice: () => void;
 }) {
-  const bg = BRAND_BG[state.device.brand] ?? "from-gray-50 to-gray-100";
+  const bg = BRAND_BG[state.device.brand] ?? "from-[#1e2535] to-[#252d3d]";
 
   return (
     <button
       onClick={onTap}
-      className={`flex flex-col rounded-2xl overflow-hidden bg-white text-left w-full transition-all duration-150 active:scale-[0.96] ${
+      className={`flex flex-col rounded-2xl overflow-hidden bg-[#1f2937] text-left w-full transition-all duration-150 active:scale-[0.96] ${
         state.available
           ? "border border-success/30 shadow-[0_0_0_1.5px_rgba(39,174,96,0.15)]"
-          : "border border-gray-100 shadow-card"
+          : "border border-[#374151] shadow-card"
       }`}
     >
       {/* Image area */}
@@ -161,8 +161,8 @@ function StockCard({
 
         {/* Saving spinner */}
         {state.saving && (
-          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-            <svg className="w-4 h-4 animate-spin text-brand-500" viewBox="0 0 24 24" fill="none">
+          <div className="absolute inset-0 bg-[#111827]/60 flex items-center justify-center">
+            <svg className="w-4 h-4 animate-spin text-[#f97316]" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
@@ -172,14 +172,14 @@ function StockCard({
 
       {/* Info */}
       <div className="flex flex-col px-2 pt-1.5 pb-2 flex-1">
-        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider truncate leading-tight">
+        <p className="text-[9px] font-bold text-[#9ca3af] uppercase tracking-wider truncate leading-tight">
           {state.device.brand}
         </p>
-        <p className={`text-[11px] font-bold leading-tight line-clamp-2 ${state.available ? "text-gray-900" : "text-gray-400"}`}>
+        <p className={`text-[11px] font-bold leading-tight line-clamp-2 ${state.available ? "text-white" : "text-[#9ca3af]"}`}>
           {state.device.model}
         </p>
         {state.device.storage_gb && (
-          <p className="text-[10px] text-gray-400 leading-tight mt-0.5">
+          <p className="text-[10px] text-[#9ca3af] leading-tight mt-0.5">
             {state.device.storage_gb}Go
           </p>
         )}
@@ -192,12 +192,12 @@ function StockCard({
             </p>
           )}
           {state.available && state.price_eur == null && (
-            <p className="text-[10px] text-gray-300 leading-tight">Ajouter prix</p>
+            <p className="text-[10px] text-[#6b7280] leading-tight">Ajouter prix</p>
           )}
           {state.available && (
             <button
               onClick={(e) => { e.stopPropagation(); onEditPrice(); }}
-              className="ml-auto flex-shrink-0 w-5 h-5 rounded flex items-center justify-center text-gray-300 hover:text-brand-500 hover:bg-brand-50 transition-colors"
+              className="ml-auto flex-shrink-0 w-5 h-5 rounded flex items-center justify-center text-[#6b7280] hover:text-[#f97316] hover:bg-[#f97316]/10 transition-colors"
               aria-label="Modifier le prix"
             >
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-3 h-3">
@@ -209,8 +209,8 @@ function StockCard({
       </div>
 
       {/* Toggle footer */}
-      <div className={`flex items-center justify-between px-2 py-2 border-t ${state.available ? "border-success/10 bg-success-50/40" : "border-gray-50"}`}>
-        <span className={`text-[9px] font-semibold uppercase tracking-wider ${state.available ? "text-success" : "text-gray-300"}`}>
+      <div className={`flex items-center justify-between px-2 py-2 border-t ${state.available ? "border-success/10 bg-success/5" : "border-[#374151]"}`}>
+        <span className={`text-[9px] font-semibold uppercase tracking-wider ${state.available ? "text-[#f97316] font-bold" : "text-[#6b7280]"}`}>
           {state.available ? "En stock" : "Hors stock"}
         </span>
         <ToggleSwitch checked={state.available} onChange={onToggle} disabled={state.saving} />
@@ -229,35 +229,35 @@ function PriceSheet({
   onSave: (price: string) => void;
 }) {
   const [input, setInput] = useState(state.priceInput);
-  const bg = BRAND_BG[state.device.brand] ?? "from-gray-50 to-gray-100";
+  const bg = BRAND_BG[state.device.brand] ?? "from-[#1e2535] to-[#252d3d]";
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/70"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white rounded-t-[28px] w-full p-6 shadow-xl">
-        <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
+      <div className="bg-[#1f2937] rounded-t-[28px] w-full p-6 shadow-xl border-t border-[#374151]">
+        <div className="w-10 h-1 rounded-full bg-[#374151] mx-auto mb-5" />
 
         <div className="flex items-center gap-3 mb-5">
           <div className={`w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-b ${bg} overflow-hidden`}>
             <DeviceImage brand={state.device.brand} model={state.device.model} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 uppercase tracking-wider font-bold">{state.device.brand}</p>
-            <p className="text-base font-bold text-gray-900 leading-tight">
+            <p className="text-xs text-[#9ca3af] uppercase tracking-wider font-bold">{state.device.brand}</p>
+            <p className="text-base font-bold text-white leading-tight">
               {state.device.model}
-              {state.device.storage_gb && <span className="text-gray-500 font-medium"> {state.device.storage_gb}Go</span>}
+              {state.device.storage_gb && <span className="text-[#9ca3af] font-medium"> {state.device.storage_gb}Go</span>}
             </p>
           </div>
-          <span className="text-xs font-bold text-success bg-success-50 px-2 py-1 rounded-full">En stock</span>
+          <span className="text-xs font-bold text-success bg-success/10 px-2 py-1 rounded-full">En stock</span>
         </div>
 
-        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+        <label className="block text-xs font-bold text-[#9ca3af] uppercase tracking-wider mb-2">
           Prix de vente (€)
         </label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">€</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af] font-medium">€</span>
           <input
             type="number"
             min="0"
@@ -266,20 +266,20 @@ function PriceSheet({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             autoFocus
-            className="w-full pl-8 pr-4 py-3.5 rounded-xl border border-gray-200 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 bg-gray-50 transition-colors"
+            className="w-full pl-8 pr-4 py-3.5 rounded-xl border border-[#374151] text-lg font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] bg-[#111827] transition-colors placeholder-[#6b7280]"
           />
         </div>
 
         <div className="flex gap-3 mt-4">
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl border border-gray-200 py-3.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex-1 rounded-xl border border-[#374151] py-3.5 text-sm font-semibold text-[#9ca3af] hover:bg-[#374151]/50 transition-colors"
           >
             Annuler
           </button>
           <button
             onClick={() => onSave(input)}
-            className="flex-1 rounded-xl bg-brand-500 text-white py-3.5 text-sm font-bold hover:bg-brand-700 transition-colors"
+            className="flex-1 rounded-xl bg-[#f97316] text-black py-3.5 text-sm font-bold hover:bg-[#ea6a00] transition-colors"
           >
             Enregistrer
           </button>
@@ -494,16 +494,16 @@ export default function StockClient({ dbInventory, deviceIdMap }: Props) {
 
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex flex-col bg-[#111827] min-h-screen">
         {/* Sticky header */}
-        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+        <div className="sticky top-0 z-10 bg-[#1f2937] backdrop-blur-sm border-b border-[#374151] shadow-sm">
           <div className="px-4 pt-3.5 pb-2">
-            <h1 className="text-lg font-bold text-brand-500">{t("title")}</h1>
+            <h1 className="text-lg font-bold text-[#f97316]">{t("title")}</h1>
           </div>
 
           <div className="px-4 pb-2">
             <div className="relative">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7280] pointer-events-none">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
               </svg>
               <input
@@ -511,7 +511,7 @@ export default function StockClient({ dbInventory, deviceIdMap }: Props) {
                 placeholder={t("search_device")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-colors"
+                className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#374151] text-sm text-white bg-[#111827] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-colors placeholder-[#6b7280]"
               />
             </div>
           </div>
@@ -521,7 +521,7 @@ export default function StockClient({ dbInventory, deviceIdMap }: Props) {
               <button
                 key={brand}
                 onClick={() => setSelectedBrand(brand)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${selectedBrand === brand ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${selectedBrand === brand ? "bg-[#f97316] text-black" : "bg-[#1f2937] text-[#9ca3af] border border-[#374151] hover:bg-[#374151]"}`}
               >
                 {brand === "all" ? t("all_brands") : brand}
               </button>
@@ -533,22 +533,22 @@ export default function StockClient({ dbInventory, deviceIdMap }: Props) {
         <div className="px-3 py-4">
           {brandGroups.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-gray-400">
+              <div className="w-16 h-16 rounded-full bg-[#1f2937] border border-[#374151] flex items-center justify-center mb-4">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8 text-[#9ca3af]">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
                 </svg>
               </div>
-              <p className="text-gray-400 text-sm">{t("empty")}</p>
+              <p className="text-[#9ca3af] text-sm">{t("empty")}</p>
             </div>
           ) : (
             <div className="space-y-6">
               {brandGroups.map(([brand, rows]) => (
                 <div key={brand}>
                   <div className="flex items-center gap-2 mb-2.5">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{brand}</p>
-                    <span className="text-xs text-gray-300">({rows.length})</span>
+                    <p className="text-xs font-bold text-[#9ca3af] uppercase tracking-widest">{brand}</p>
+                    <span className="text-xs text-[#6b7280]">({rows.length})</span>
                     {rows.some((r) => r.available) && (
-                      <span className="text-[10px] font-bold text-success bg-success-50 px-1.5 py-0.5 rounded-full ml-auto">
+                      <span className="text-[10px] font-bold text-[#f97316] px-1.5 py-0.5 rounded-full ml-auto border border-[#f97316]/30 bg-[#f97316]/10">
                         {rows.filter((r) => r.available).length} en stock
                       </span>
                     )}

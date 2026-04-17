@@ -110,205 +110,259 @@ export default async function HomePage({
   ];
 
   return (
-    <div className="min-h-screen bg-[#f9f9f7]">
+    <div className="min-h-screen pb-6" style={{ background: "#111827" }}>
 
-      {/* ── Cinematic video hero ─────────────────────────────────────── */}
-      <div className="relative w-full overflow-hidden" style={{ height: "520px" }}>
-        {/* Background video — Woman browsing a phone store (Mixkit 11658, free license) */}
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          poster="https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=1280"
-        >
-          <source src="/videos/hero.mp4" type="video/mp4" />
-        </video>
-
-        {/* Dark gradient overlay — bottom heavier so text is legible */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-500/95 via-brand-500/50 to-brand-500/20" />
-
-        {/* Top left — logo */}
-        <div className="absolute top-0 left-0 px-6 py-5">
-          <div className="w-[56px] h-[56px] rounded-[16px] bg-white/95 backdrop-blur flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.35)]">
-            <svg viewBox="0 0 56 56" fill="none" className="w-8 h-8" aria-hidden="true">
-              <rect x="14" y="8" width="20" height="32" rx="4" fill="#1e3a5f"/>
-              <rect x="17" y="12" width="14" height="20" rx="2" fill="#e8f0fe"/>
-              <circle cx="24" cy="35" r="2" fill="#ffffff"/>
-              <path d="M38 20 Q44 20 44 28 Q44 36 38 36" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
-              <path d="M38 24 Q41 24 41 28 Q41 32 38 32" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
+      {/* ── 1. TOP BAR ──────────────────────────────────────────────── */}
+      <div
+        className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 border-b"
+        style={{ background: "#1f2937", borderColor: "#374151" }}
+      >
+        {/* Left: logo + wordmark */}
+        <div className="flex items-center">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: "#1e3a5f" }}
+          >
+            <svg viewBox="0 0 32 32" fill="none" className="w-5 h-5" aria-hidden="true">
+              <rect x="7" y="4" width="11" height="18" rx="2" fill="white" fillOpacity="0.9"/>
+              <rect x="9" y="6" width="7" height="11" rx="1" fill="#1e3a5f"/>
+              <circle cx="12.5" cy="19.5" r="1" fill="white"/>
+              <path d="M20 11 Q24 11 24 16 Q24 21 20 21" stroke="#f97316" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              <path d="M20 14 Q22 14 22 16 Q22 18 20 18" stroke="#f97316" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
             </svg>
           </div>
-        </div>
-
-        {/* Bottom — shop name centered */}
-        <div className="absolute bottom-0 left-0 right-0 pb-8 flex flex-col items-center">
-          <p className="text-white text-2xl font-bold tracking-tight leading-tight text-center">
-            {d.shopName}
-            {d.shopCommune && <span className="text-white/60 text-lg font-medium ml-2">· {d.shopCommune}</span>}
-          </p>
-        </div>
-
-        {/* Centre brand block — text only */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-          <h1
-            className="text-white text-[38px] leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-center"
+          <span
+            className="ml-2 text-lg text-white"
             style={{ fontFamily: "'Chango', cursive" }}
           >
-            PhoneLink<br />Brussels
-          </h1>
-          <p className="text-white/70 text-sm font-medium tracking-wide text-center">
-            Réseau de boutiques téléphonie à Bruxelles
-          </p>
+            PhoneLink
+          </span>
         </div>
-
+        {/* Right: shop name */}
+        <span className="text-sm" style={{ color: "#9ca3af" }}>{d.shopName}</span>
       </div>
 
-      {/* ── Main content ─────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      {/* ── 2. NETWORK STATUS BAR ───────────────────────────────────── */}
+      <div
+        className="flex items-center px-4 py-2 border-b"
+        style={{ background: "rgba(30,58,95,0.3)", borderColor: "rgba(30,58,95,0.5)" }}
+      >
+        <span
+          className="animate-pulse inline-block w-2 h-2 rounded-full mr-2 flex-shrink-0"
+          style={{ background: "#22c55e" }}
+        />
+        <span className="text-xs" style={{ color: "#9ca3af" }}>
+          Réseau actif · {d.networkShops.length} boutiques en ligne
+        </span>
+      </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-5 mb-8 mt-8">
-          {[
-            { value: d.openRequests, label: "Demandes actives", color: "text-brand-500", bg: "bg-brand-50", border: "border-brand-100" },
-            { value: d.inStockCount, label: "Appareils en stock", color: "text-success", bg: "bg-success-50", border: "border-success-100" },
-            { value: d.salesThisWeek, label: "Ventes récupérées (semaine)", color: "text-accent", bg: "bg-accent-50", border: "border-accent-100" },
-          ].map(({ value, label, color, bg, border }) => (
-            <div key={label} className={`bg-white rounded-2xl border ${border} shadow-card-md px-7 py-5 flex items-center gap-5`}>
-              <p className={`text-5xl font-bold ${color} leading-none tabular-nums`}>{value}</p>
-              <p className="text-sm font-semibold text-gray-500 leading-snug max-w-[120px]">{label}</p>
-            </div>
-          ))}
+      {/* ── 3. HERO METRIC CARD ─────────────────────────────────────── */}
+      <div
+        className="mx-4 mt-4 rounded-2xl border-t-4 p-6"
+        style={{ background: "#1f2937", borderTopColor: "#f97316" }}
+      >
+        <p
+          style={{
+            fontFamily: "'Chango', cursive",
+            fontSize: "96px",
+            lineHeight: 1,
+            color: "#f97316",
+            textShadow: "0 0 24px rgba(249,115,22,0.5)",
+          }}
+        >
+          {d.openRequests}
+        </p>
+        <p className="text-white text-lg font-semibold mt-1">demandes actives</p>
+        <p className="text-sm mt-0.5" style={{ color: "#9ca3af" }}>dans le réseau</p>
+      </div>
+
+      {/* ── 4. TWO SECONDARY METRIC CARDS ───────────────────────────── */}
+      <div className="grid grid-cols-2 gap-3 mx-4 mt-3">
+        {/* Stock */}
+        <div
+          className="rounded-2xl border p-4"
+          style={{ background: "#1f2937", borderColor: "#374151" }}
+        >
+          <p
+            style={{
+              fontFamily: "'Chango', cursive",
+              fontSize: "40px",
+              lineHeight: 1,
+              color: "white",
+            }}
+          >
+            {d.inStockCount}
+          </p>
+          <p className="text-xs mt-1" style={{ color: "#9ca3af" }}>appareils en stock</p>
+        </div>
+        {/* Sales */}
+        <div
+          className="rounded-2xl border p-4"
+          style={{ background: "#1f2937", borderColor: "#374151" }}
+        >
+          <p
+            style={{
+              fontFamily: "'Chango', cursive",
+              fontSize: "40px",
+              lineHeight: 1,
+              color: "#f97316",
+            }}
+          >
+            {d.salesThisWeek}
+          </p>
+          <p className="text-xs mt-1" style={{ color: "#9ca3af" }}>ventes récupérées</p>
+        </div>
+      </div>
+
+      {/* ── 5. QUICK STATS STRIP ────────────────────────────────────── */}
+      <div
+        className="flex gap-4 mx-4 mt-3 overflow-x-auto"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {[
+          { icon: "◉", label: `${d.networkShops.length} boutiques` },
+          { icon: "⟳", label: "Réseau actif" },
+          { icon: "📍", label: "Bruxelles" },
+        ].map(({ icon, label }) => (
+          <span
+            key={label}
+            className="inline-flex items-center gap-1.5 text-xs whitespace-nowrap flex-shrink-0"
+            style={{ color: "#9ca3af" }}
+          >
+            <span>{icon}</span>
+            <span>{label}</span>
+          </span>
+        ))}
+      </div>
+
+      {/* ── 6. RECENT REQUESTS SECTION ──────────────────────────────── */}
+      <div className="mx-4 mt-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2
+            className="text-xs font-bold uppercase tracking-widest"
+            style={{ color: "#9ca3af" }}
+          >
+            DEMANDES RÉSEAU
+          </h2>
+          <Link
+            href={`/${locale}/demandes`}
+            className="text-xs"
+            style={{ color: "#f97316" }}
+          >
+            Voir tout →
+          </Link>
         </div>
 
-        {/* Navigation grid */}
-        <div className="mb-8">
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Navigation</h2>
-          <div className="grid grid-cols-3 gap-4">
-            {quickActions.map(({ href, label, sub, bg, iconColor, icon }) => (
-              <Link
-                key={href}
-                href={href}
-                className="group flex flex-col gap-4 bg-white rounded-2xl border border-gray-100 shadow-card p-5 hover:shadow-card-md hover:border-gray-200 transition-all duration-150 active:scale-[0.99]"
-              >
-                <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center`}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className={`w-5 h-5 ${iconColor}`}>
-                    {icon}
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-gray-900 leading-tight">{label}</p>
-                  <p className="text-xs text-gray-400 mt-0.5 leading-tight">{sub}</p>
-                </div>
-              </Link>
-            ))}
+        {d.recentRequests.length === 0 ? (
+          <div
+            className="rounded-xl px-4 py-6 flex items-center justify-center"
+            style={{ background: "#1f2937", border: "1px solid #374151" }}
+          >
+            <p className="text-sm" style={{ color: "#9ca3af" }}>Réseau calme</p>
           </div>
-        </div>
+        ) : (
+          <div>
+            {d.recentRequests.map((req, idx) => {
+              const device = req.devices;
+              const shop = req.shops;
+              const timeLeft = timeUntil(req.expires_at);
+              const isUrgent = idx === 0 || new Date(req.expires_at).getTime() - Date.now() < 60 * 60 * 1000;
 
-        {/* Network shops */}
-        {d.networkShops.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                Boutiques du réseau
-              </h2>
-              <span className="text-xs font-semibold text-gray-400">{d.networkShops.length} boutique{d.networkShops.length > 1 ? "s" : ""}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {d.networkShops.map((s) => {
-                const isMe = s.id === d.currentShopId;
-                return (
-                  <Link
-                    key={s.id}
-                    href={`/${locale}/boutiques/${s.id}`}
-                    className={`bg-white rounded-2xl border shadow-card px-5 py-4 flex items-start gap-4 hover:shadow-card-md transition-all active:scale-[0.99] ${isMe ? "border-brand-200 bg-brand-50/40" : "border-gray-100 hover:border-gray-200"}`}
+              return (
+                <Link
+                  key={req.id}
+                  href={`/${locale}/demandes`}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 mb-2 border-l-4"
+                  style={{
+                    background: "#1f2937",
+                    borderLeftColor: isUrgent ? "#f97316" : "#374151",
+                  }}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ background: isUrgent ? "#f97316" : "#6b7280" }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-white truncate leading-tight">
+                      {device
+                        ? `${device.brand} ${device.model}${device.storage_gb ? ` ${device.storage_gb}Go` : ""}`
+                        : "—"}
+                    </p>
+                    <p className="text-xs truncate mt-0.5" style={{ color: "#9ca3af" }}>
+                      {shop?.name ?? "—"}{shop?.commune ? ` · ${shop.commune}` : ""}
+                    </p>
+                  </div>
+                  <span
+                    className="text-[10px] px-2 py-0.5 rounded-full flex-shrink-0"
+                    style={{ background: "#374151", color: "#9ca3af" }}
                   >
-                    {/* Avatar */}
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-base font-bold ${isMe ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-500"}`}>
-                      {s.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className={`text-sm font-bold truncate leading-tight ${isMe ? "text-brand-700" : "text-gray-900"}`}>
-                          {s.name}
-                        </p>
-                        {isMe && (
-                          <span className="text-[10px] font-bold bg-brand-500 text-white px-1.5 py-0.5 rounded-full flex-shrink-0">
-                            Vous
-                          </span>
-                        )}
-                      </div>
-                      {s.commune && (
-                        <p className="text-xs text-gray-400 mt-0.5 truncate">{s.commune}</p>
-                      )}
-                      {s.phone && (
-                        <p className="text-xs text-brand-500 font-medium mt-1 truncate">{s.phone}</p>
-                      )}
-                    </div>
-                    <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5">
-                      <path fillRule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                    </svg>
-                  </Link>
-                );
-              })}
-            </div>
+                    {timeLeft}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         )}
-
-        {/* Live requests — full width below nav */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Demandes réseau</h2>
-            <Link href={`/${locale}/demandes`} className="text-xs font-semibold text-brand-500 hover:text-brand-700">
-              Voir tout →
-            </Link>
-          </div>
-
-          {d.recentRequests.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-card px-5 py-8 flex flex-col items-center text-center">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5 text-gray-400">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-              </div>
-              <p className="text-sm font-semibold text-gray-600">Réseau calme</p>
-              <p className="text-xs text-gray-400 mt-1">Aucune demande active</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-2.5">
-              {d.recentRequests.map((req) => {
-                const device = req.devices;
-                const shop = req.shops;
-                const timeLeft = timeUntil(req.expires_at);
-                const isExpiring = new Date(req.expires_at).getTime() - Date.now() < 60 * 60 * 1000;
-
-                return (
-                  <Link
-                    key={req.id}
-                    href={`/${locale}/demandes`}
-                    className="flex items-center gap-3 bg-white rounded-xl border border-gray-100 shadow-card px-4 py-3.5 hover:shadow-card-md hover:border-gray-200 transition-all"
-                  >
-                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isExpiring ? "bg-accent" : "bg-brand-200"}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate leading-tight">
-                        {device ? `${device.brand} ${device.model}${device.storage_gb ? ` ${device.storage_gb}Go` : ""}` : "—"}
-                      </p>
-                      <p className="text-xs text-gray-400 truncate mt-0.5">
-                        {shop?.name ?? "—"}{shop?.commune ? ` · ${shop.commune}` : ""}
-                      </p>
-                    </div>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isExpiring ? "text-accent bg-accent-50" : "text-gray-400 bg-gray-100"}`}>
-                      {timeLeft}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
       </div>
+
+      {/* ── 7. NETWORK SHOPS ────────────────────────────────────────── */}
+      {d.networkShops.length > 0 && (
+        <div className="mx-4 mt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2
+              className="text-xs font-bold uppercase tracking-widest"
+              style={{ color: "#9ca3af" }}
+            >
+              BOUTIQUES DU RÉSEAU
+            </h2>
+            <span className="text-xs" style={{ color: "#9ca3af" }}>
+              {d.networkShops.length}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {d.networkShops.map((s) => {
+              const isMe = s.id === d.currentShopId;
+              return (
+                <Link
+                  key={s.id}
+                  href={`/${locale}/boutiques/${s.id}`}
+                  className="rounded-xl border px-3 py-3 flex items-center gap-3"
+                  style={{ background: "#1f2937", borderColor: "#374151" }}
+                >
+                  {/* Avatar */}
+                  <div
+                    className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-bold text-white"
+                    style={{ background: "#1e3a5f" }}
+                  >
+                    {s.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-semibold text-white truncate leading-tight">
+                        {s.name}
+                      </p>
+                      {isMe && (
+                        <span
+                          className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                          style={{ background: "#f97316", color: "black" }}
+                        >
+                          Vous
+                        </span>
+                      )}
+                    </div>
+                    {s.commune && (
+                      <p className="text-xs truncate mt-0.5" style={{ color: "#9ca3af" }}>
+                        {s.commune}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

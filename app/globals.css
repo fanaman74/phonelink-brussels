@@ -15,11 +15,17 @@
   body {
     font-family: var(--font-readex), "Readex Pro", -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
+    background-color: #111827;
+    color: #f9fafb;
   }
 }
 
 @layer utilities {
   .safe-area-pb {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .glow-orange {
+    text-shadow: 0 0 24px rgba(249, 115, 22, 0.6), 0 0 48px rgba(249, 115, 22, 0.3);
   }
 }
