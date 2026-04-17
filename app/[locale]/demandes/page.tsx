@@ -59,7 +59,7 @@ export default async function DemandesPage() {
       .select(`
         id, status, created_at,
         devices (brand, model, storage_gb),
-        responses (has_device, price_eur, responding_shop_id, shops:responding_shop_id(name))
+        responses (has_device, price_eur, responding_shop_id, shops!responding_shop_id(name))
       `)
       .eq("requesting_shop_id", myShopId)
       .order("created_at", { ascending: false })

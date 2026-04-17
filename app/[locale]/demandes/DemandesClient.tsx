@@ -417,16 +417,16 @@ export default function DemandesClient({
                 res.status === "expired" ? "Expiré" : "En attente";
               const isCancelling = cancellingId === res.id;
               return (
-                <div key={res.id} className="flex items-center justify-between bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm gap-3">
+                <div key={res.id} className="flex items-start justify-between bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm gap-3">
                   <div className="flex-1 min-w-0">
+                    <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full mb-1 ${statusColor}`}>{statusLabel}</span>
                     <p className="text-sm font-semibold text-gray-900 truncate">
                       {res.devices ? `${res.devices.brand} ${res.devices.model}` : "—"}
                       {res.devices?.storage_gb ? <span className="text-gray-400 font-normal ml-1">{res.devices.storage_gb}Go</span> : null}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">Chez {shopName}{price ? ` · ${price}` : ""}</p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColor}`}>{statusLabel}</span>
+                  <div className="flex items-center gap-2 shrink-0 mt-1">
                     <button
                       onClick={() => handleCancelReservation(res.id)}
                       disabled={isCancelling}

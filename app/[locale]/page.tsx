@@ -157,7 +157,7 @@ export default async function HomePage({
             className="text-white text-[38px] leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-center"
             style={{ fontFamily: "'Chango', cursive" }}
           >
-            PhoneLink Brussels
+            PhoneLink<br />Brussels
           </h1>
           <p className="text-white/70 text-sm font-medium tracking-wide text-center">
             Réseau de boutiques téléphonie à Bruxelles
