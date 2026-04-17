@@ -133,8 +133,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      </div>
-
       {/* Bottom login card — slides up from bottom */}
       <div className="relative bg-white rounded-t-[28px] px-6 pt-8 pb-10 shadow-[0_-4px_40px_rgba(0,0,0,0.3)]">
         {/* Pull handle */}
