@@ -49,7 +49,8 @@ export default async function DemandesPage() {
   const networkId = (networkResult.data as string | null) ?? null;
 
   // Fetch the current shop's own reservations (all statuses) via service
-  // role so RLS doesn't block the nested shop join.
+  // role to bypass RLS. Three separate flat queries — avoids PostgREST
+  // nested join issues entirely.
   let myReservations: MyReservation[] = [];
   if (myShopId) {
     const svc = createServiceClient(
@@ -57,38 +58,59 @@ export default async function DemandesPage() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { persistSession: false } }
     );
-    const { data: rawReservations } = await svc
+
+    // 1. Fetch requests
+    const { data: reqRows } = await svc
       .from("requests")
-      .select("id, status, created_at, devices:device_id(brand, model, storage_gb), responses(responding_shop_id, price_eur)")
+      .select("id, status, created_at, device_id")
       .eq("requesting_shop_id", myShopId)
       .order("created_at", { ascending: false })
       .limit(20);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rows = (rawReservations ?? []) as any[];
+    const reqs = (reqRows ?? []) as any[];
 
-    if (rows.length > 0) {
-      // Collect all unique responding_shop_ids
-      const shopIds = [...new Set(
-        rows.flatMap((r) => (r.responses ?? []).map((resp: { responding_shop_id: string }) => resp.responding_shop_id).filter(Boolean))
-      )] as string[];
+    if (reqs.length > 0) {
+      const reqIds = reqs.map((r) => r.id as string);
+      const deviceIds = [...new Set(reqs.map((r) => r.device_id as string).filter(Boolean))];
 
-      // Batch-fetch shop names
-      const shopMap: Record<string, string> = {};
-      if (shopIds.length > 0) {
-        const { data: shops } = await svc.from("shops").select("id, name").in("id", shopIds);
-        (shops ?? []).forEach((s: { id: string; name: string }) => { shopMap[s.id] = s.name; });
+      // 2. Fetch responses for those requests
+      const { data: respRows } = await svc
+        .from("responses")
+        .select("request_id, responding_shop_id, price_eur")
+        .in("request_id", reqIds);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resps = (respRows ?? []) as any[];
+
+      // 3. Batch-fetch devices and shops
+      const deviceMap: Record<string, { brand: string; model: string; storage_gb: number | null }> = {};
+      if (deviceIds.length > 0) {
+        const { data: devRows } = await svc.from("devices").select("id, brand, model, storage_gb").in("id", deviceIds);
+        (devRows ?? []).forEach((d: { id: string; brand: string; model: string; storage_gb: number | null }) => {
+          deviceMap[d.id] = { brand: d.brand, model: d.model, storage_gb: d.storage_gb };
+        });
       }
 
-      myReservations = rows.map((r) => {
-        const resp = r.responses?.[0];
+      const shopIds = [...new Set(resps.map((r) => r.responding_shop_id as string).filter(Boolean))];
+      const shopMap: Record<string, string> = {};
+      if (shopIds.length > 0) {
+        const { data: shopRows } = await svc.from("shops").select("id, name").in("id", shopIds);
+        (shopRows ?? []).forEach((s: { id: string; name: string }) => { shopMap[s.id] = s.name; });
+      }
+
+      // Build response lookup by request_id
+      const respByReqId: Record<string, { responding_shop_id: string; price_eur: number | null }> = {};
+      resps.forEach((r) => { respByReqId[r.request_id] = r; });
+
+      myReservations = reqs.map((r) => {
+        const resp = respByReqId[r.id];
         return {
           id: r.id as string,
           status: r.status as string,
           created_at: r.created_at as string,
-          devices: r.devices as MyReservation["devices"],
+          devices: deviceMap[r.device_id] ?? null,
           shop_name: resp?.responding_shop_id ? (shopMap[resp.responding_shop_id] ?? null) : null,
-          price_eur: (resp?.price_eur ?? null) as number | null,
+          price_eur: resp?.price_eur ?? null,
         };
       });
     }
