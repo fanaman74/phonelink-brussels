@@ -46,7 +46,7 @@ export default function LoginPage() {
 
   async function verifyOtp(e: React.FormEvent) {
     e.preventDefault();
-    if (otp.length < 4) {
+    if (otp.length < 6) {
       toast.error(t("auth.invalid_otp"));
       return;
     }
@@ -201,10 +201,10 @@ export default function LoginPage() {
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                maxLength={6}
+                maxLength={8}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                placeholder="000000"
+                placeholder="00000000"
                 autoComplete="one-time-code"
                 className="w-full px-4 py-4 rounded-xl border border-gray-200 text-center text-3xl tracking-[0.5em] font-mono focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-shadow"
                 disabled={loading}
@@ -213,7 +213,7 @@ export default function LoginPage() {
             </div>
             <button
               type="submit"
-              disabled={loading || otp.length < 4}
+              disabled={loading || otp.length < 6}
               className="w-full py-3.5 rounded-xl bg-brand-500 text-white font-semibold text-base hover:bg-brand-700 disabled:opacity-40 transition-all duration-150 shadow-[0_4px_12px_rgba(30,58,95,0.3)] active:scale-[0.98]"
             >
               {loading ? (
