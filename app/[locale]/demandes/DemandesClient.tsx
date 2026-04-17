@@ -9,7 +9,7 @@ import { confirmSale } from "@/app/actions/sales";
 import { subscribeToRequests, subscribeToResponses } from "@/lib/supabase/realtime";
 import { isOpenClientSide, timeRemaining } from "@/lib/ttl";
 import { displayDevice } from "@/lib/devices";
-import type { RequestItem, MyResponse } from "./page";
+import type { RequestItem, MyResponse, MyReservation } from "./page";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,6 +18,7 @@ interface Props {
   initialMyResponses: MyResponse[];
   myShopId: string | null;
   networkId: string | null;
+  myReservations: MyReservation[];
 }
 
 // ─── Time Badge ───────────────────────────────────────────────────────────────
@@ -282,6 +283,7 @@ export default function DemandesClient({
   initialMyResponses,
   myShopId,
   networkId,
+  myReservations,
 }: Props) {
   const t = useTranslations("dashboard");
   const locale = useLocale();
@@ -376,6 +378,46 @@ export default function DemandesClient({
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3.5 shadow-sm">
         <h1 className="text-lg font-bold text-brand-500">{t("title")}</h1>
       </div>
+
+      {/* My reservations — requests I made at other shops */}
+      {myReservations.length > 0 && (
+        <div className="px-4 pt-4 pb-2">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Mes réservations</p>
+          <div className="space-y-2">
+            {myReservations.map((res) => {
+              const response = res.responses?.[0];
+              const shopName = response?.shops?.name ?? "—";
+              const price = response?.price_eur != null ? `${response.price_eur} €` : null;
+              const statusColor =
+                res.status === "matched" ? "bg-green-100 text-green-700" :
+                res.status === "expired" ? "bg-red-100 text-red-500" :
+                "bg-blue-100 text-blue-600";
+              const statusLabel =
+                res.status === "matched" ? "Confirmé" :
+                res.status === "expired" ? "Expiré" : "En attente";
+              return (
+                <div key={res.id} className="flex items-center justify-between bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {res.devices ? `${res.devices.brand} ${res.devices.model}` : "—"}
+                      {res.devices?.storage_gb ? <span className="text-gray-400 font-normal ml-1">{res.devices.storage_gb}Go</span> : null}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">Chez {shopName}{price ? ` · ${price}` : ""}</p>
+                  </div>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColor}`}>{statusLabel}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Divider */}
+      {myReservations.length > 0 && (
+        <div className="px-4 pt-3 pb-1">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Demandes du réseau</p>
+        </div>
+      )}
 
       {/* Request list */}
       <div className="px-4 py-4 space-y-3">

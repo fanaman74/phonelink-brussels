@@ -15,6 +15,18 @@ export type RequestItem = {
   devices: { id: string; brand: string; model: string; storage_gb: number | null } | null;
 };
 
+export type MyReservation = {
+  id: string;
+  status: string;
+  created_at: string;
+  devices: { brand: string; model: string; storage_gb: number | null } | null;
+  responses: {
+    has_device: boolean;
+    price_eur: number | null;
+    shops: { name: string } | null;
+  }[];
+};
+
 export type MyResponse = {
   request_id: string;
   has_device: boolean;
@@ -38,6 +50,23 @@ export default async function DemandesPage() {
   const myShopId = (shopResult.data as string | null) ?? null;
   const networkId = (networkResult.data as string | null) ?? null;
 
+  // Fetch the current shop's own reservations (all statuses) so they
+  // appear even after being matched.
+  let myReservations: MyReservation[] = [];
+  if (myShopId) {
+    const { data } = await supabase
+      .from("requests")
+      .select(`
+        id, status, created_at,
+        devices (brand, model, storage_gb),
+        responses (has_device, price_eur, shops!responding_shop_id(name))
+      `)
+      .eq("requesting_shop_id", myShopId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    myReservations = (data ?? []) as unknown as MyReservation[];
+  }
+
   const requestIds = requests.map((r) => r.id);
   const responsesResult = await getMyResponsesForRequests(requestIds);
   const myResponses = (responsesResult.data ?? []) as MyResponse[];
@@ -48,6 +77,7 @@ export default async function DemandesPage() {
       initialMyResponses={myResponses}
       myShopId={myShopId}
       networkId={networkId}
+      myReservations={myReservations}
     />
   );
 }
