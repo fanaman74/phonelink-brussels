@@ -131,14 +131,24 @@ export default async function HomePage({
         <div className="absolute inset-0 bg-gradient-to-t from-brand-500/95 via-brand-500/50 to-brand-500/20" />
 
         {/* Top nav bar */}
-        <div className="absolute top-0 left-0 right-0 px-8 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center backdrop-blur-sm">
-              <svg viewBox="0 0 20 20" fill="white" className="w-5 h-5">
-                <path d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z" />
+        <div className="absolute top-0 left-0 right-0 px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* New logo: phone body + orange signal arcs */}
+            <div className="w-11 h-11 rounded-[14px] bg-white/95 backdrop-blur flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
+              <svg viewBox="0 0 56 56" fill="none" className="w-7 h-7" aria-hidden="true">
+                <rect x="14" y="8" width="20" height="32" rx="4" fill="#1e3a5f"/>
+                <rect x="17" y="12" width="14" height="20" rx="2" fill="#e8f0fe"/>
+                <circle cx="24" cy="35" r="2" fill="#ffffff"/>
+                <path d="M38 20 Q44 20 44 28 Q44 36 38 36" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
+                <path d="M38 24 Q41 24 41 28 Q41 32 38 32" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
               </svg>
             </div>
-            <span className="text-white font-bold text-lg tracking-tight">PhoneLink Brussels</span>
+            <span
+              className="text-white text-2xl leading-none drop-shadow"
+              style={{ fontFamily: "'Chango', cursive" }}
+            >
+              PhoneLink Brussels
+            </span>
           </div>
           <p className="text-white/50 text-sm font-medium">
             {new Date().toLocaleDateString("fr-BE", { weekday: "long", day: "numeric", month: "long" })}
