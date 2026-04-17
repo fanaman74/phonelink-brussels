@@ -162,14 +162,6 @@ export default async function HomePage({
           </p>
         </div>
 
-        {/* Bottom — shop greeting */}
-        <div className="absolute bottom-0 left-0 right-0 max-w-7xl mx-auto px-8 pb-8">
-          <p className="text-white/60 text-sm font-medium mb-0.5">{greetingByHour()}</p>
-          <p className="text-white text-2xl font-bold tracking-tight leading-tight">
-            {d.shopName}
-            {d.shopCommune && <span className="text-white/60 text-lg font-medium ml-2">· {d.shopCommune}</span>}
-          </p>
-        </div>
       </div>
 
       {/* ── Main content ─────────────────────────────────────────────── */}
