@@ -53,7 +53,8 @@ export const config = {
   matcher: [
     // Match all pathnames except:
     // - /api, /_next, /_vercel
-    // - files with a dot (favicon.ico, images, etc.)
-    "/((?!api|_next|_vercel|.*\\..*).*)",
+    // - /videos (static video files in public/)
+    // - files with a dot in the last segment (favicon.ico, images, etc.)
+    "/((?!api|_next|_vercel|videos|[^/]*\\.[^/]*).*)",
   ],
 };
