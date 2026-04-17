@@ -130,8 +130,8 @@ export default async function HomePage({
         {/* Dark gradient overlay — bottom heavier so text is legible */}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-500/95 via-brand-500/50 to-brand-500/20" />
 
-        {/* Top right — logo */}
-        <div className="absolute top-0 right-0 px-6 py-5">
+        {/* Top left — logo */}
+        <div className="absolute top-0 left-0 px-6 py-5">
           <div className="w-[56px] h-[56px] rounded-[16px] bg-white/95 backdrop-blur flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.35)]">
             <svg viewBox="0 0 56 56" fill="none" className="w-8 h-8" aria-hidden="true">
               <rect x="14" y="8" width="20" height="32" rx="4" fill="#1e3a5f"/>
