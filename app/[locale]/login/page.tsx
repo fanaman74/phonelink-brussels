@@ -37,7 +37,7 @@ export default function LoginPage() {
     });
     setLoading(false);
     if (error) {
-      toast.error(t("errors.network"));
+      toast.error(error.message ?? t("errors.network"));
       return;
     }
     toast.success(t("auth.otp_sent", { contact: email.trim() }));
@@ -86,22 +86,38 @@ export default function LoginPage() {
 
       {/* ── Foreground content ─────────────────────────────────────── */}
 
+      {/* Home button — top right */}
+      <div className="relative flex justify-end px-5 pt-5">
+        <a
+          href="/"
+          className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center shadow-lg hover:bg-white/30 transition-colors"
+          aria-label="Home"
+        >
+          <svg viewBox="0 0 20 20" fill="white" className="w-5 h-5">
+            <path d="M10.707 2.293a1 1 0 0 0-1.414 0l-7 7A1 1 0 0 0 3 11h1v6a1 1 0 0 0 1 1h4v-4h2v4h4a1 1 0 0 0 1-1v-6h1a1 1 0 0 0 .707-1.707l-7-7Z" />
+          </svg>
+        </a>
+      </div>
+
       {/* Top brand section */}
-      <div className="relative flex-1 flex flex-col items-center justify-center px-6 pt-16 pb-8">
+      <div className="relative flex-1 flex flex-col items-center justify-center px-6 pt-4 pb-8">
         {/* Logo mark */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-[72px] h-[72px] rounded-[20px] bg-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] mb-5">
-            <svg viewBox="0 0 40 40" fill="none" className="w-10 h-10" aria-hidden="true">
+          <div className="w-[84px] h-[84px] rounded-[24px] bg-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] mb-5">
+            <svg viewBox="0 0 40 40" fill="none" className="w-11 h-11" aria-hidden="true">
               <rect x="8" y="4" width="16" height="26" rx="3" fill="#1e3a5f" />
               <rect x="11" y="7" width="10" height="16" rx="1.5" fill="#ffffff" />
               <circle cx="16" cy="27" r="1.5" fill="#ffffff" />
               <path d="M27 14h4M27 18h4M27 22h4" stroke="#e67e22" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
           </div>
-          <h1 className="text-[28px] font-bold text-white tracking-tight leading-tight drop-shadow-lg">
+          <h1
+            className="text-[42px] text-white leading-tight drop-shadow-lg"
+            style={{ fontFamily: "'Changos', cursive" }}
+          >
             PhoneLink
           </h1>
-          <p className="text-white/70 text-sm font-medium mt-1">Brussels Network</p>
+          <p className="text-white/70 text-sm font-medium mt-1 tracking-wide uppercase">Brussels Network</p>
         </div>
 
         {/* Value props */}
