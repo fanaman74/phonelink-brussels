@@ -130,40 +130,44 @@ export default async function HomePage({
         {/* Dark gradient overlay — bottom heavier so text is legible */}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-500/95 via-brand-500/50 to-brand-500/20" />
 
-        {/* Top nav bar */}
-        <div className="absolute top-0 left-0 right-0 px-6 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* New logo: phone body + orange signal arcs */}
-            <div className="w-11 h-11 rounded-[14px] bg-white/95 backdrop-blur flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
-              <svg viewBox="0 0 56 56" fill="none" className="w-7 h-7" aria-hidden="true">
-                <rect x="14" y="8" width="20" height="32" rx="4" fill="#1e3a5f"/>
-                <rect x="17" y="12" width="14" height="20" rx="2" fill="#e8f0fe"/>
-                <circle cx="24" cy="35" r="2" fill="#ffffff"/>
-                <path d="M38 20 Q44 20 44 28 Q44 36 38 36" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
-                <path d="M38 24 Q41 24 41 28 Q41 32 38 32" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
-              </svg>
-            </div>
-            <span
-              className="text-white text-2xl leading-none drop-shadow"
-              style={{ fontFamily: "'Chango', cursive" }}
-            >
-              PhoneLink Brussels
-            </span>
-          </div>
+        {/* Top bar — date only, top right */}
+        <div className="absolute top-0 right-0 px-6 py-5">
           <p className="text-white/50 text-sm font-medium">
             {new Date().toLocaleDateString("fr-BE", { weekday: "long", day: "numeric", month: "long" })}
           </p>
         </div>
 
-        {/* Bottom content */}
-        <div className="absolute bottom-0 left-0 right-0 max-w-7xl mx-auto px-8 pb-10">
-          <p className="text-white/60 text-base font-medium mb-1">{greetingByHour()}</p>
-          <h1 className="text-white text-4xl font-bold tracking-tight leading-tight mb-2">
-            {d.shopName}
-            {d.shopCommune && <span className="text-white/60 text-2xl font-medium ml-3">· {d.shopCommune}</span>}
+        {/* Centre brand block */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+          {/* Logo badge */}
+          <div className="w-[72px] h-[72px] rounded-[20px] bg-white/95 backdrop-blur flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+            <svg viewBox="0 0 56 56" fill="none" className="w-10 h-10" aria-hidden="true">
+              <rect x="14" y="8" width="20" height="32" rx="4" fill="#1e3a5f"/>
+              <rect x="17" y="12" width="14" height="20" rx="2" fill="#e8f0fe"/>
+              <circle cx="24" cy="35" r="2" fill="#ffffff"/>
+              <path d="M38 20 Q44 20 44 28 Q44 36 38 36" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
+              <path d="M38 24 Q41 24 41 28 Q41 32 38 32" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
+            </svg>
+          </div>
+          {/* Brand name */}
+          <h1
+            className="text-white text-[38px] leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-center"
+            style={{ fontFamily: "'Chango', cursive" }}
+          >
+            PhoneLink Brussels
           </h1>
-          <p className="text-white/50 text-sm font-medium">
+          {/* Subtitle */}
+          <p className="text-white/70 text-sm font-medium tracking-wide text-center">
             Réseau de boutiques téléphonie à Bruxelles
+          </p>
+        </div>
+
+        {/* Bottom — shop greeting */}
+        <div className="absolute bottom-0 left-0 right-0 max-w-7xl mx-auto px-8 pb-8">
+          <p className="text-white/60 text-sm font-medium mb-0.5">{greetingByHour()}</p>
+          <p className="text-white text-2xl font-bold tracking-tight leading-tight">
+            {d.shopName}
+            {d.shopCommune && <span className="text-white/60 text-lg font-medium ml-2">· {d.shopCommune}</span>}
           </p>
         </div>
       </div>
