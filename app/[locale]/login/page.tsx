@@ -120,13 +120,13 @@ export default function LoginPage() {
           {/* PhoneLink Brussels — Changos, large */}
           <h1
             className="text-[52px] text-white leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] text-center"
-            style={{ fontFamily: "'Changos', cursive" }}
+            style={{ fontFamily: "'Chango', cursive" }}
           >
             PhoneLink
           </h1>
           <p
             className="text-[22px] text-white/90 mt-1 drop-shadow text-center"
-            style={{ fontFamily: "'Changos', cursive" }}
+            style={{ fontFamily: "'Chango', cursive" }}
           >
             Brussels
           </p>
