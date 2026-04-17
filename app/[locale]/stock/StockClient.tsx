@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import { upsertInventory } from "@/app/actions/inventory";
 import { DEVICES, displayDevice, type Device } from "@/lib/devices";
@@ -54,7 +55,10 @@ function deviceKey(d: Device): string {
   return `${d.brand}||${d.model}||${d.storage_gb ?? "null"}`;
 }
 
-function buildInitialState(dbInventory: InventoryRow[]): Map<string, DeviceState> {
+function buildInitialState(
+  dbInventory: InventoryRow[],
+  deviceIdMap: Record<string, string>
+): Map<string, DeviceState> {
   const byLabel = new Map<string, InventoryRow>();
   for (const row of dbInventory) {
     if (row.devices) {
@@ -66,9 +70,11 @@ function buildInitialState(dbInventory: InventoryRow[]): Map<string, DeviceState
   for (const device of DEVICES) {
     const key = deviceKey(device);
     const dbRow = byLabel.get(key);
+    // Prefer the inventory row's device ID, fall back to the catalog-wide lookup
+    const device_id = dbRow?.devices?.id ?? deviceIdMap[key] ?? null;
     map.set(key, {
       device,
-      device_id: dbRow?.devices?.id ?? null,
+      device_id,
       available: dbRow?.available ?? false,
       price_eur: dbRow?.price_eur ?? null,
       priceInput: dbRow?.price_eur != null ? String(dbRow.price_eur) : "",
@@ -128,10 +134,12 @@ function StockCard({
   state,
   onToggle,
   onTap,
+  onEditPrice,
 }: {
   state: DeviceState;
   onToggle: () => void;
   onTap: () => void;
+  onEditPrice: () => void;
 }) {
   const bg = BRAND_BG[state.device.brand] ?? "from-gray-50 to-gray-100";
 
@@ -176,15 +184,28 @@ function StockCard({
           </p>
         )}
 
-        {/* Price badge */}
-        {state.available && state.price_eur != null && (
-          <p className="text-[10px] font-bold text-success mt-1 leading-tight">
-            {state.price_eur.toLocaleString("fr-BE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-          </p>
-        )}
-        {state.available && state.price_eur == null && (
-          <p className="text-[10px] text-gray-300 mt-1 leading-tight">Ajouter prix</p>
-        )}
+        {/* Price row with edit button */}
+        <div className="flex items-center gap-1 mt-1">
+          {state.available && state.price_eur != null && (
+            <p className="text-[10px] font-bold text-success leading-tight">
+              {state.price_eur.toLocaleString("fr-BE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
+            </p>
+          )}
+          {state.available && state.price_eur == null && (
+            <p className="text-[10px] text-gray-300 leading-tight">Ajouter prix</p>
+          )}
+          {state.available && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onEditPrice(); }}
+              className="ml-auto flex-shrink-0 w-5 h-5 rounded flex items-center justify-center text-gray-300 hover:text-brand-500 hover:bg-brand-50 transition-colors"
+              aria-label="Modifier le prix"
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-3 h-3">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.013 2.5a1.768 1.768 0 1 1 2.5 2.5L5.25 13.25l-3.5.75.75-3.5L11.013 2.5Z" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Toggle footer */}
@@ -272,13 +293,17 @@ function PriceSheet({
 
 interface Props {
   dbInventory: InventoryRow[];
+  deviceIdMap: Record<string, string>;
 }
 
-export default function StockClient({ dbInventory }: Props) {
+export default function StockClient({ dbInventory, deviceIdMap }: Props) {
   const t = useTranslations("inventory");
+  const router = useRouter();
+  const params = useParams();
+  const locale = (params?.locale as string) ?? "fr";
 
   const [deviceStates, setDeviceStates] = useState<Map<string, DeviceState>>(() =>
-    buildInitialState(dbInventory)
+    buildInitialState(dbInventory, deviceIdMap)
   );
   const [selectedBrand, setSelectedBrand] = useState<string>("all");
   const [search, setSearch] = useState("");
@@ -295,6 +320,57 @@ export default function StockClient({ dbInventory }: Props) {
     return Array.from(set);
   }, []);
 
+  // Helper: clear saving state (used in finally blocks)
+  const clearSaving = useCallback((key: string) => {
+    setDeviceStates((prev) => {
+      const next = new Map(prev);
+      const cur = next.get(key);
+      if (cur) next.set(key, { ...cur, saving: false });
+      return next;
+    });
+  }, []);
+
+  // Save a specific available value directly — avoids stateRef timing issues.
+  const saveToggle = useCallback(async (key: string, newAvailable: boolean) => {
+    const s = stateRef.current.get(key);
+    if (!s?.device_id) return;
+
+    setDeviceStates((prev) => {
+      const next = new Map(prev);
+      const cur = next.get(key);
+      if (cur) next.set(key, { ...cur, saving: true });
+      return next;
+    });
+
+    const priceVal = newAvailable && s.priceInput.trim() !== "" ? parseFloat(s.priceInput) : null;
+
+    try {
+      const result = await upsertInventory({ device_id: s.device_id, available: newAvailable, price_eur: priceVal });
+
+      if ("error" in result && result.error) {
+        toast.error("Erreur lors de la sauvegarde");
+        setDeviceStates((prev) => {
+          const next = new Map(prev);
+          const cur = next.get(key);
+          if (cur) next.set(key, { ...cur, available: !newAvailable, saving: false });
+          return next;
+        });
+      } else {
+        clearSaving(key);
+      }
+    } catch (e) {
+      // Network error or server crash — roll back and unblock the UI
+      console.error("[saveToggle] error:", e);
+      toast.error("Erreur lors de la sauvegarde");
+      setDeviceStates((prev) => {
+        const next = new Map(prev);
+        const cur = next.get(key);
+        if (cur) next.set(key, { ...cur, available: !newAvailable, saving: false });
+        return next;
+      });
+    }
+  }, [t, clearSaving]);
+
   const saveDevice = useCallback(async (key: string, overridePrice?: string) => {
     const s = stateRef.current.get(key);
     if (!s) return;
@@ -310,45 +386,61 @@ export default function StockClient({ dbInventory }: Props) {
     const priceStr = overridePrice ?? s.priceInput;
     const priceVal = s.available && priceStr.trim() !== "" ? parseFloat(priceStr) : null;
 
-    const result = await upsertInventory({ device_id: s.device_id, available: s.available, price_eur: priceVal });
+    try {
+      const result = await upsertInventory({ device_id: s.device_id, available: s.available, price_eur: priceVal });
 
+      if ("error" in result && result.error) {
+        toast.error("Erreur lors de la sauvegarde");
+        clearSaving(key);
+      } else {
+        setDeviceStates((prev) => {
+          const next = new Map(prev);
+          const cur = next.get(key);
+          if (!cur) return prev;
+          next.set(key, {
+            ...cur,
+            saving: false,
+            price_eur: priceVal,
+            priceInput: priceVal != null ? String(priceVal) : "",
+            priceDirty: false,
+          });
+          return next;
+        });
+      }
+    } catch (e) {
+      console.error("[saveDevice] error:", e);
+      toast.error("Erreur lors de la sauvegarde");
+      clearSaving(key);
+    }
+  }, [t, clearSaving]);
+
+  const handleToggle = useCallback((key: string) => {
+    const s = stateRef.current.get(key);
+    if (!s) return;
+    const newAvailable = !s.available;
+
+    // Optimistic update
     setDeviceStates((prev) => {
       const next = new Map(prev);
       const cur = next.get(key);
       if (!cur) return prev;
-      if ("error" in result && result.error) {
-        toast.error(t("empty"));
-        next.set(key, { ...cur, saving: false });
-      } else {
-        next.set(key, {
-          ...cur,
-          saving: false,
-          price_eur: priceVal,
-          priceInput: priceVal != null ? String(priceVal) : "",
-          priceDirty: false,
-        });
-      }
+      next.set(key, { ...cur, available: newAvailable, priceDirty: false });
       return next;
     });
-  }, [t]);
 
-  const handleToggle = useCallback((key: string) => {
-    setDeviceStates((prev) => {
-      const next = new Map(prev);
-      const s = next.get(key);
-      if (!s) return prev;
-      next.set(key, { ...s, available: !s.available, priceDirty: false });
-      return next;
-    });
-    const existing = debounceRefs.current.get(key);
-    if (existing) clearTimeout(existing);
-    const timer = setTimeout(() => saveDevice(key), 500);
-    debounceRefs.current.set(key, timer);
-  }, [saveDevice]);
+    // Save immediately with the new value — no debounce, no stateRef race
+    saveToggle(key, newAvailable);
+  }, [saveToggle]);
 
   const handleCardTap = useCallback((key: string) => {
     const s = stateRef.current.get(key);
-    if (s?.available) setPriceSheetKey(key);
+    if (s?.device_id) {
+      router.push(`/${locale}/chercher/${s.device_id}`);
+    }
+  }, [router, locale]);
+
+  const handleEditPrice = useCallback((key: string) => {
+    setPriceSheetKey(key);
   }, []);
 
   const handlePriceSave = useCallback((key: string, priceStr: string) => {
@@ -470,6 +562,7 @@ export default function StockClient({ dbInventory }: Props) {
                           state={state}
                           onToggle={() => handleToggle(key)}
                           onTap={() => handleCardTap(key)}
+                          onEditPrice={() => handleEditPrice(key)}
                         />
                       );
                     })}

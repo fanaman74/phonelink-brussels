@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -15,6 +15,8 @@ function validateEmail(email: string): boolean {
 export default function LoginPage() {
   const t = useTranslations();
   const router = useRouter();
+  const params = useParams();
+  const locale = (params?.locale as string) ?? "fr";
   const supabase = getSupabaseBrowserClient();
 
   const [step, setStep] = useState<Step>("email");
@@ -59,25 +61,36 @@ export default function LoginPage() {
       toast.error(t("auth.invalid_otp"));
       return;
     }
-    router.replace("/fr/demandes");
+    router.replace(`/${locale}/demandes`);
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-brand-500 overflow-hidden">
-      {/* Background pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-        aria-hidden="true"
-      />
+    <div className="min-h-screen flex flex-col overflow-hidden relative bg-brand-500">
+
+      {/* ── Video background ───────────────────────────────────────── */}
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+        poster="https://images.pexels.com/photos/5673502/pexels-photo-5673502.jpeg?auto=compress&cs=tinysrgb&w=1280"
+      >
+        {/* Woman browsing a phone store (Mixkit 11658, free license) */}
+        <source src="/videos/hero.mp4" type="video/mp4" />
+      </video>
+
+      {/* Dark gradient overlay — bottom heavy for card legibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-brand-500/60 to-brand-500/30" />
+
+      {/* ── Foreground content ─────────────────────────────────────── */}
 
       {/* Top brand section */}
       <div className="relative flex-1 flex flex-col items-center justify-center px-6 pt-16 pb-8">
         {/* Logo mark */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-[72px] h-[72px] rounded-[20px] bg-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.25)] mb-5">
+          <div className="w-[72px] h-[72px] rounded-[20px] bg-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] mb-5">
             <svg viewBox="0 0 40 40" fill="none" className="w-10 h-10" aria-hidden="true">
               <rect x="8" y="4" width="16" height="26" rx="3" fill="#1e3a5f" />
               <rect x="11" y="7" width="10" height="16" rx="1.5" fill="#ffffff" />
@@ -85,10 +98,10 @@ export default function LoginPage() {
               <path d="M27 14h4M27 18h4M27 22h4" stroke="#e67e22" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
           </div>
-          <h1 className="text-[28px] font-bold text-white tracking-tight leading-tight">
+          <h1 className="text-[28px] font-bold text-white tracking-tight leading-tight drop-shadow-lg">
             PhoneLink
           </h1>
-          <p className="text-brand-200 text-sm font-medium mt-1">Brussels Network</p>
+          <p className="text-white/70 text-sm font-medium mt-1">Brussels Network</p>
         </div>
 
         {/* Value props */}
@@ -98,7 +111,7 @@ export default function LoginPage() {
             { icon: "🔗", text: t("auth.value_2") },
             { icon: "📊", text: t("auth.value_3") },
           ].map((item, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm text-white/80">
+            <div key={i} className="flex items-center gap-3 text-sm text-white/80 drop-shadow">
               <span className="text-base leading-none">{item.icon}</span>
               <span>{item.text}</span>
             </div>
@@ -107,7 +120,7 @@ export default function LoginPage() {
       </div>
 
       {/* Bottom login card — slides up from bottom */}
-      <div className="relative bg-white rounded-t-[28px] px-6 pt-8 pb-10 shadow-[0_-4px_32px_rgba(0,0,0,0.18)]">
+      <div className="relative bg-white rounded-t-[28px] px-6 pt-8 pb-10 shadow-[0_-4px_40px_rgba(0,0,0,0.3)]">
         {/* Pull handle */}
         <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-gray-200" />
 

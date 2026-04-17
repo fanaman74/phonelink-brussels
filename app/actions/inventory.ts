@@ -14,36 +14,47 @@ const UpsertInventorySchema = z.object({
 export type UpsertInventoryInput = z.infer<typeof UpsertInventorySchema>;
 
 export async function upsertInventory(input: UpsertInventoryInput) {
-  const parsed = UpsertInventorySchema.safeParse(input);
-  if (!parsed.success) {
-    return { error: "invalid_input" as const };
+  try {
+    const parsed = UpsertInventorySchema.safeParse(input);
+    if (!parsed.success) {
+      console.error("[upsertInventory] invalid input:", parsed.error);
+      return { error: "invalid_input" as const };
+    }
+
+    const supabase = await createClient();
+
+    // Resolve shop_id for the current user
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: shopId, error: shopErr } = await (supabase as any).rpc("auth_shop_id") as { data: string | null; error: unknown };
+    if (shopErr) console.error("[upsertInventory] auth_shop_id error:", shopErr);
+    if (!shopId) {
+      console.error("[upsertInventory] no shopId for current user — not authenticated or no shop row");
+      return { error: "forbidden" as const };
+    }
+
+    // network_id is populated by trigger (set_network_id_from_shop); shop_id is PK so must be provided
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any).from("inventory").upsert(
+      {
+        shop_id: shopId,
+        device_id: parsed.data.device_id,
+        available: parsed.data.available,
+        quantity: parsed.data.quantity ?? null,
+        price_eur: parsed.data.price_eur ?? null,
+      },
+      { onConflict: "shop_id,device_id" }
+    );
+
+    if (error) {
+      console.error("[upsertInventory] upsert error:", error);
+      return { error: classifyError(error) };
+    }
+
+    return { success: true };
+  } catch (e) {
+    console.error("[upsertInventory] unexpected exception:", e);
+    return { error: "unknown" as const };
   }
-
-  const supabase = await createClient();
-
-  // Resolve shop_id for the current user
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: shopId } = await (supabase as any).rpc("auth_shop_id").single() as { data: string | null; error: unknown };
-  if (!shopId) return { error: "forbidden" as const };
-
-  // network_id is populated by trigger (set_network_id_from_shop); shop_id is PK so must be provided
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any).from("inventory").upsert(
-    {
-      shop_id: shopId,
-      device_id: parsed.data.device_id,
-      available: parsed.data.available,
-      quantity: parsed.data.quantity ?? null,
-      price_eur: parsed.data.price_eur ?? null,
-    },
-    { onConflict: "shop_id,device_id" }
-  );
-
-  if (error) {
-    return { error: classifyError(error) };
-  }
-
-  return { success: true };
 }
 
 export async function getMyInventory() {

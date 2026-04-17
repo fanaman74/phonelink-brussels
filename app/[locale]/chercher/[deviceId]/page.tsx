@@ -23,6 +23,11 @@ export type DeviceInfo = {
   storage_gb: number | null;
 };
 
+export type StorageVariant = {
+  id: string;
+  storage_gb: number | null;
+};
+
 /**
  * Device Detail Page — shows network-wide stock for a specific device.
  * Accessible via /[locale]/chercher/[deviceId]
@@ -32,7 +37,7 @@ export default async function DeviceDetailPage({
 }: {
   params: Promise<{ locale: string; deviceId: string }>;
 }) {
-  const { deviceId } = await params;
+  const { locale, deviceId } = await params;
   const supabase = await createClient();
 
   // Fetch device info
@@ -45,6 +50,16 @@ export default async function DeviceDetailPage({
   if (deviceError || !device) {
     notFound();
   }
+
+  // Fetch all storage variants of the same brand+model (for storage picker)
+  const { data: variants } = await supabase
+    .from("devices")
+    .select("id, storage_gb")
+    .eq("brand", (device as DeviceInfo).brand)
+    .eq("model", (device as DeviceInfo).model)
+    .order("storage_gb", { ascending: true });
+
+  const storageVariants: StorageVariant[] = (variants ?? []) as StorageVariant[];
 
   // Fetch network-wide inventory for this device
   const { data: inventory } = await supabase
@@ -62,6 +77,8 @@ export default async function DeviceDetailPage({
     <DeviceDetailClient
       device={device as DeviceInfo}
       shopStock={shopStock}
+      storageVariants={storageVariants}
+      locale={locale}
     />
   );
 }
