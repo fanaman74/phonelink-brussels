@@ -137,6 +137,14 @@ export default async function HomePage({
           </p>
         </div>
 
+        {/* Bottom — shop name centered */}
+        <div className="absolute bottom-0 left-0 right-0 pb-8 flex flex-col items-center">
+          <p className="text-white text-2xl font-bold tracking-tight leading-tight text-center">
+            {d.shopName}
+            {d.shopCommune && <span className="text-white/60 text-lg font-medium ml-2">· {d.shopCommune}</span>}
+          </p>
+        </div>
+
         {/* Centre brand block */}
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
           {/* Logo badge */}
