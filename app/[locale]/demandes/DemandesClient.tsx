@@ -5,7 +5,8 @@ import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import { toast } from "sonner";
 import { respondToRequest } from "@/app/actions/responses";
-import { confirmSale } from "@/app/actions/sales";
+import { confirmSale, } from "@/app/actions/sales";
+import { cancelReservation } from "@/app/actions/requests";
 import { subscribeToRequests, subscribeToResponses } from "@/lib/supabase/realtime";
 import { isOpenClientSide, timeRemaining } from "@/lib/ttl";
 import { displayDevice } from "@/lib/devices";
@@ -283,12 +284,26 @@ export default function DemandesClient({
   initialMyResponses,
   myShopId,
   networkId,
-  myReservations,
+  myReservations: initialMyReservations,
 }: Props) {
   const t = useTranslations("dashboard");
   const locale = useLocale();
 
   const [requests, setRequests] = useState<RequestItem[]>(initialRequests);
+  const [myReservations, setMyReservations] = useState<MyReservation[]>(initialMyReservations);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  const handleCancelReservation = useCallback(async (id: string) => {
+    setCancellingId(id);
+    const result = await cancelReservation(id);
+    setCancellingId(null);
+    if (result.error) {
+      toast.error("Impossible d'annuler la réservation.");
+    } else {
+      setMyReservations((prev) => prev.filter((r) => r.id !== id));
+      toast.success("Réservation annulée.");
+    }
+  }, []);
   const [myResponseMap, setMyResponseMap] = useState<Record<string, MyResponse>>(() => {
     const map: Record<string, MyResponse> = {};
     for (const r of initialMyResponses) {
@@ -375,8 +390,13 @@ export default function DemandesClient({
   return (
     <div className="flex flex-col">
       {/* Sticky title bar */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3.5 shadow-sm">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3.5 shadow-sm flex items-center gap-2.5">
         <h1 className="text-lg font-bold text-brand-500">{t("title")}</h1>
+        {requests.length > 0 && (
+          <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-brand-500 text-white text-xs font-bold leading-none">
+            {requests.length}
+          </span>
+        )}
       </div>
 
       {/* My reservations — requests I made at other shops */}
@@ -386,7 +406,7 @@ export default function DemandesClient({
           <div className="space-y-2">
             {myReservations.map((res) => {
               const response = res.responses?.[0];
-              const shopName = response?.shops?.name ?? "—";
+              const shopName = (response?.shops as { name?: string } | null)?.name ?? "—";
               const price = response?.price_eur != null ? `${response.price_eur} €` : null;
               const statusColor =
                 res.status === "matched" ? "bg-green-100 text-green-700" :
@@ -395,16 +415,33 @@ export default function DemandesClient({
               const statusLabel =
                 res.status === "matched" ? "Confirmé" :
                 res.status === "expired" ? "Expiré" : "En attente";
+              const isCancelling = cancellingId === res.id;
               return (
-                <div key={res.id} className="flex items-center justify-between bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
+                <div key={res.id} className="flex items-center justify-between bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">
                       {res.devices ? `${res.devices.brand} ${res.devices.model}` : "—"}
                       {res.devices?.storage_gb ? <span className="text-gray-400 font-normal ml-1">{res.devices.storage_gb}Go</span> : null}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">Chez {shopName}{price ? ` · ${price}` : ""}</p>
                   </div>
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColor}`}>{statusLabel}</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColor}`}>{statusLabel}</span>
+                    <button
+                      onClick={() => handleCancelReservation(res.id)}
+                      disabled={isCancelling}
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-red-50 hover:bg-red-100 text-red-400 hover:text-red-600 transition-colors disabled:opacity-40"
+                      title="Annuler"
+                    >
+                      {isCancelling ? (
+                        <span className="w-3 h-3 border-2 border-red-300 border-t-red-500 rounded-full animate-spin" />
+                      ) : (
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                          <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
               );
             })}

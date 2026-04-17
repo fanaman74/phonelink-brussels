@@ -118,6 +118,28 @@ export async function reserveDevice(input: z.infer<typeof ReserveSchema>) {
   redirect(`/${parsed.data.locale}/demandes`);
 }
 
+export async function cancelReservation(requestId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "no_session" as const };
+
+  const svc = getServiceClient();
+
+  // Verify the request belongs to this user's shop
+  const { data: shopRow } = await svc
+    .from("shops").select("id").eq("user_id", user.id).single();
+  if (!shopRow) return { error: "no_shop" as const };
+
+  const { error } = await svc
+    .from("requests")
+    .delete()
+    .eq("id", requestId)
+    .eq("requesting_shop_id", shopRow.id);
+
+  if (error) return { error: "failed" as const };
+  return { error: null };
+}
+
 export async function getNetworkOpenRequests() {
   const supabase = await createClient();
 
