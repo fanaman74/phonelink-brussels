@@ -64,12 +64,13 @@ export default async function DemandesPage() {
       .order("created_at", { ascending: false })
       .limit(20);
 
-    if (rawReservations && rawReservations.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rows = (rawReservations ?? []) as any[];
+
+    if (rows.length > 0) {
       // Collect all unique responding_shop_ids
       const shopIds = [...new Set(
-        rawReservations.flatMap((r: { responses?: { responding_shop_id: string }[] }) =>
-          (r.responses ?? []).map((resp) => resp.responding_shop_id).filter(Boolean)
-        )
+        rows.flatMap((r) => (r.responses ?? []).map((resp: { responding_shop_id: string }) => resp.responding_shop_id).filter(Boolean))
       )] as string[];
 
       // Batch-fetch shop names
@@ -79,19 +80,15 @@ export default async function DemandesPage() {
         (shops ?? []).forEach((s: { id: string; name: string }) => { shopMap[s.id] = s.name; });
       }
 
-      myReservations = rawReservations.map((r: {
-        id: string; status: string; created_at: string;
-        devices: { brand: string; model: string; storage_gb: number | null } | null;
-        responses?: { responding_shop_id: string; price_eur: number | null }[];
-      }) => {
+      myReservations = rows.map((r) => {
         const resp = r.responses?.[0];
         return {
-          id: r.id,
-          status: r.status,
-          created_at: r.created_at,
-          devices: r.devices,
+          id: r.id as string,
+          status: r.status as string,
+          created_at: r.created_at as string,
+          devices: r.devices as MyReservation["devices"],
           shop_name: resp?.responding_shop_id ? (shopMap[resp.responding_shop_id] ?? null) : null,
-          price_eur: resp?.price_eur ?? null,
+          price_eur: (resp?.price_eur ?? null) as number | null,
         };
       });
     }
