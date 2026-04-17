@@ -130,11 +130,17 @@ export default async function HomePage({
         {/* Dark gradient overlay — bottom heavier so text is legible */}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-500/95 via-brand-500/50 to-brand-500/20" />
 
-        {/* Top bar — date only, top right */}
+        {/* Top right — logo */}
         <div className="absolute top-0 right-0 px-6 py-5">
-          <p className="text-white/50 text-sm font-medium">
-            {new Date().toLocaleDateString("fr-BE", { weekday: "long", day: "numeric", month: "long" })}
-          </p>
+          <div className="w-[56px] h-[56px] rounded-[16px] bg-white/95 backdrop-blur flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.35)]">
+            <svg viewBox="0 0 56 56" fill="none" className="w-8 h-8" aria-hidden="true">
+              <rect x="14" y="8" width="20" height="32" rx="4" fill="#1e3a5f"/>
+              <rect x="17" y="12" width="14" height="20" rx="2" fill="#e8f0fe"/>
+              <circle cx="24" cy="35" r="2" fill="#ffffff"/>
+              <path d="M38 20 Q44 20 44 28 Q44 36 38 36" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
+              <path d="M38 24 Q41 24 41 28 Q41 32 38 32" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
+            </svg>
+          </div>
         </div>
 
         {/* Bottom — shop name centered */}
@@ -145,26 +151,14 @@ export default async function HomePage({
           </p>
         </div>
 
-        {/* Centre brand block */}
+        {/* Centre brand block — text only */}
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-          {/* Logo badge */}
-          <div className="w-[72px] h-[72px] rounded-[20px] bg-white/95 backdrop-blur flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-            <svg viewBox="0 0 56 56" fill="none" className="w-10 h-10" aria-hidden="true">
-              <rect x="14" y="8" width="20" height="32" rx="4" fill="#1e3a5f"/>
-              <rect x="17" y="12" width="14" height="20" rx="2" fill="#e8f0fe"/>
-              <circle cx="24" cy="35" r="2" fill="#ffffff"/>
-              <path d="M38 20 Q44 20 44 28 Q44 36 38 36" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
-              <path d="M38 24 Q41 24 41 28 Q41 32 38 32" stroke="#e67e22" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
-            </svg>
-          </div>
-          {/* Brand name */}
           <h1
             className="text-white text-[38px] leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-center"
             style={{ fontFamily: "'Chango', cursive" }}
           >
             PhoneLink Brussels
           </h1>
-          {/* Subtitle */}
           <p className="text-white/70 text-sm font-medium tracking-wide text-center">
             Réseau de boutiques téléphonie à Bruxelles
           </p>
