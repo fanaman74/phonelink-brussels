@@ -405,9 +405,8 @@ export default function DemandesClient({
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Mes réservations</p>
           <div className="space-y-2">
             {myReservations.map((res) => {
-              const response = res.responses?.[0];
-              const shopName = (response?.shops as { name?: string } | null)?.name ?? "—";
-              const price = response?.price_eur != null ? `${response.price_eur} €` : null;
+              const shopName = res.shop_name ?? "—";
+              const price = res.price_eur != null ? `${res.price_eur} €` : null;
               const statusColor =
                 res.status === "matched" ? "bg-green-100 text-green-700" :
                 res.status === "expired" ? "bg-red-100 text-red-500" :
